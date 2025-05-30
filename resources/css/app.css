@@ -1,0 +1,41 @@
+/*@tailwind base;*/
+/*@tailwind components;*/
+/*@tailwind utilities;*/
+
+
+.primary-button{
+    padding: 12px 20px;
+    border-radius: 8px;
+    width: fit-content;
+    cursor: pointer;
+    border: none;
+    transition: 200ms;
+    user-select: none;
+    background: #0092E1;
+    color: white;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
+    &:hover{
+        background: #0481c4;
+    }
+}
+
+.not-found-msg{
+    color: red;
+    font-size: 25px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* Hide arrows in number input */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
