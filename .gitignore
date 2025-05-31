@@ -4,8 +4,11 @@
 /public/hot
 /public/storage
 /public/images/logo/*
+!/public/images/logo/.gitkeep
 /public/images/users/*
+!/public/images/users/.gitkeep
 /public/images/qrcode/*
+!/public/images/qrcode/.gitkeep
 /storage/*.key
 /storage/pail
 /vendor
