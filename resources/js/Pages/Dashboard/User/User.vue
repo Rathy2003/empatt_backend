@@ -97,7 +97,7 @@
                             <div style="width: 35%" class="d-flex justify-content-center align-items-center">
                                 <div class="mb-3">
                                     <div id="preview-wrapper">
-                                        <img v-if="form_data.old_photo" :src="'/images/logo/'+form_data.old_photo" id="logo-preview" alt="">
+                                        <img v-if="form_data.old_photo" :src="'/images/users/'+form_data.old_photo" id="logo-preview" alt="">
                                         <img v-else src="@/assets/No-Image-Placeholder.svg.png" id="logo-preview" alt="">
                                     </div>
                                     <label for="logo" class="form-label">Logo</label>
@@ -123,16 +123,16 @@
         </div>
         <!-- End Add and Edit User Modal-->
 
-        <!-- Delete Company Modal-->
+        <!-- Delete User Modal-->
         <div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Company?</h1>
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete User?</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <h4>Are you sure delete this company?</h4>
+                        <h4>Are you sure delete this users?</h4>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </div>
-        <!-- Delete Company Modal-->
+        <!-- Delete End Delete Modal-->
         <div class="Report-wrapper">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="search-container">
@@ -280,7 +280,7 @@ export default{
             clearTimeout(this.debounceTimer)
 
             this.debounceTimer = setTimeout(() => {
-                router.get(route('company'), { search: this.search }, {
+                router.get(route('user'), { search: this.search }, {
                     preserveState: true,
                     replace: true
                 })
@@ -306,7 +306,7 @@ export default{
         saveEdit(){
             let vm = this;
             this.clearErrors()
-            this.form_data.post(route('saveEditCompany'),{
+            this.form_data.post(route('saveUser'),{
                 onSuccess:function(data){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
@@ -322,10 +322,15 @@ export default{
         },
         onEdit(item){
             this.form_data.id = item.id;
-            this.form_data.name = item.name;
+            this.form_data.firstname = item.firstname;
+            this.form_data.lastname = item.lastname;
             this.form_data.email = item.email;
             this.form_data.phone_number = item.phone_number;
-            this.form_data.old_logo = item.logo;
+            this.form_data.gender = item.gender;
+            this.form_data.role = item.role;
+            this.form_data.company_id = item.company_id;
+            this.form_data.old_photo = item.photo;
+
             $("#staticBackdrop").modal('show');
         },
         onDelete(item){
@@ -335,7 +340,7 @@ export default{
         },
         onCfDelete(){
             let form = useForm({id:this.form_data.id})
-            form.post(route('deleteCompany'),{
+            form.post(route('deleteUser'),{
                 onSuccess:()=> $("#deleteModal").modal('hide'),
                 onError:(err) =>{
                     console.log(err)

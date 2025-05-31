@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -18,27 +20,19 @@ class UserController extends Controller
         $search = $request->query('search');
         $companies = Company::all();
         if($search){
-            $users = User::query()
+
+            $users = User::with(['company:id,name'])
+                ->where('id', '!=', 1)
                 ->when($search, function ($query, $search) {
                     $query->where(function ($q) use ($search) {
-                        $q->where('email', 'like', "%{$search}%");
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('phone_number', 'like', "%{$search}%");
                     });
                 })
                 ->paginate(8)
                 ->appends(['search' => $search]);
         }
-
-//        $companies = User::query()
-//            ->when($search, function ($query, $search) {
-//                $query->where(function ($q) use ($search) {
-//                    $q->where('name', 'like', "%{$search}%")
-//                        ->orWhere('email', 'like', "%{$search}%")
-//                        ->orWhere('phone_number', 'like', "%{$search}%");
-//                });
-//            })
-//            ->paginate(8)
-//            ->appends(['search' => $search]);
-
 
         return Inertia::render('Dashboard/User/User',[
             'users' => $users,
@@ -85,5 +79,51 @@ class UserController extends Controller
         // assign role
         $user->assignRole($data['role']);
         return redirect()->back()->with('success','User has been created');
+    }
+
+    public function update(Request $request){
+        $request->validate([
+            'id' => 'required|numeric|exists:users,id',
+            'firstname'=>'required|string',
+            'lastname' => [
+                'required',
+                'string',
+                Rule::unique('users')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('firstname', $request->firstname);
+                    })
+                    ->ignore($request->id),
+            ],
+            'email'=>'required|email|unique:users,email,'.$request->id,
+            'phone_number'=>'required|numeric|unique:users,phone_number,'.$request->id,
+            'company_id'=>'required|numeric|exists:company,id',
+            'gender' => 'required|string',
+            'role' => 'required|string'
+        ]);
+
+        $old_photo = $request->old_photo;
+
+        if($request->photo && $request->photo != $old_photo){
+            if(!$old_photo){
+                $filename = $request->photo->getClientOriginalName();
+                $filename =  time().$filename;
+                $old_photo = $filename;
+            }
+            $request->photo->move(public_path('images/users'), $old_photo);
+        }
+
+        $data = $request->only(['firstname','lastname','email','phone_number','company_id','gender','role']);
+        $user = User::find($request->id);
+        if($old_photo){
+            $user->photo = $old_photo;
+        }
+        $user->update($data);
+        return redirect()->back()->with('success','Photo has been updated');
+    }
+
+    public function delete(Request $request){
+        $id = intval($request->id);
+        User::destroy($id);
+        return redirect()->back()->with('success','User has been deleted');
     }
 }

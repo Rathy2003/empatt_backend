@@ -70,7 +70,7 @@ class CompanyController extends Controller
 
         $old_logo = $request->old_logo;
 
-        if($request->logo != $old_logo){
+        if($request->logo && $request->logo != $old_logo){
             if(!$old_logo){
                 $filename = $request->logo->getClientOriginalName();
                 $filename =  time().$filename;

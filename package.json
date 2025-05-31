@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "chart.js": "^4.4.9",
-        "dayjs": "^1.11.13"
+        "dayjs": "^1.11.13",
+        "qrcode": "^1.5.4"
     }
 }
