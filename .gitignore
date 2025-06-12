@@ -9,6 +9,8 @@
 !/public/images/users/.gitkeep
 /public/images/qrcode/*
 !/public/images/qrcode/.gitkeep
+/public/images/employee/*
+!/public/images/employee/.gitkeep
 /storage/*.key
 /storage/pail
 /vendor
