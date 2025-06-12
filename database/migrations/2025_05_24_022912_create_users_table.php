@@ -29,15 +29,13 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->date('hire_date')->nullable();
             $table->enum('role', ['owner','admin', 'manager','employee'])->default('employee');
-            $table->unsignedBigInteger('position_id')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->bigInteger('position_id')->unsigned()->nullable();
             $table->foreign('position_id')
                 ->references('id')
                 ->on('position')
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
-            $table->integer('total_attendance')->default(0);
-            $table->integer('total_absent')->default(0);
-            $table->enum('status', ['active', 'inactive','pending'])->default('pending');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

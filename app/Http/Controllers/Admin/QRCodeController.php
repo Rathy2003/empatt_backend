@@ -16,7 +16,7 @@ class QRCodeController extends Controller
     public function showQRCode(Request $request)
     {
 
-        $qrcode = QRCode::latest()->paginate(8);
+        $qrcode = QRCode::with(['company:id,name'])->latest()->paginate(8);
         $company_id = Auth::user()->company_id;
         $search = $request->query('search');
         if($search){
@@ -43,10 +43,18 @@ class QRCodeController extends Controller
 
     public function saveQRCodeImage(Request $request)
     {
-        if($request->hasFile('file')){
-            $newfilename = time().'.'.$request->file('file')->getClientOriginalExtension();
-            $request->file('file')->move(public_path('images/qrcode'), $newfilename);
-        }
+        $request->validate([
+            'id' => 'required|exists:qrcode,id',
+            'image' => 'required|mimes:png'
+        ]);
+
+        $new_filename = time().'.'.$request->file('image')->getClientOriginalExtension();
+        $request->file('image')->move(public_path('images/qrcode'), $new_filename);
+        $qrcode = QRCode::find($request->id);
+        $qrcode->image = $new_filename;
+        $qrcode->save();
+
+        return redirect()->back()->with('success', 'QR Code Image Uploaded Successfully');
     }
 
     public function save(Request $request){
@@ -64,10 +72,21 @@ class QRCodeController extends Controller
         ];
 
         $token = JWT::encode($payload, $key, 'HS256');
-        $data = ["token" => $token,"name" => $request->name, "company_id" => $request->company_id];
+        $data = ["token" => $token,"name" => $request->name, "company_id" => $request->company_id,"image" => null];
         QRCode::create($data);
 
         return redirect()->back()->with('success', $token);
+    }
+
+    public function delete(Request $request){
+        $id = intval($request->id);
+        $qrcode = QRCode::find($id);
+        $image_name = $qrcode->image;
+        if($image_name){
+            unlink(public_path('images/qrcode/'.$image_name));
+        }
+        $qrcode->delete();
+        return redirect()->back()->with('success','QR Code deleted Successfully');
     }
 
 }

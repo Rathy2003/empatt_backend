@@ -1,83 +1,111 @@
 <template>
 
     <div class="main-container">
-      <div class="off-screen-menu-bg" :class="{ active: offScreenMenuActive }" @click="toggleOffScreenMenu"></div>
-      <div class="off-screen-menu" :class="{ active: offScreenMenuActive }">
-         <div class="logo-container">
-                <img src="@/assets/logo2.png" class="logo" style="width:30px;">
-            <label style="font-size:28px;">Checkplify</label>
-            </div>
-            <div class="Left-menu-container">
-                <div class="db-container">
-                    <li><Link :href="route('dashboard')">DashBoard</Link></li>
-                </div>
-                <div class="rp-container">
-<!--                    <router-link to="/report">Report</router-link>-->
-                    <li><Link :href="route('accountInformation')">Change Password</Link></li>
-                </div>
-                <div class="att-container">
-<!--                    <router-link to="/attendance">Attendance</router-link>-->
-                    <li><Link :href="route('accountInformation')">Change Password</Link></li>
-                </div>
-                <div class="st-container" @mouseenter="SetdropdownVisible = true" @mouseleave="SetdropdownVisible = false" >
-                    <label >Setting</label>
-                    <transition name="fade">
-                        <div class="set-dropdown" v-show="SetdropdownVisible">
-                            <ul>
-                                <li><Link :href="route('accountInformation')">Account Information</Link></li>
-<!--                                <li><router-link to="/ChangePassword">Change Password</router-link></li>-->
-                                <li><Link :href="route('accountInformation')">Change Password</Link></li>
-                            </ul>
-                        </div>
-                    </transition>
-                </div>
-            </div>
-      </div>
-      <nav>
-         <div class="ham-menu" :class="{ active: offScreenMenuActive }" @click="toggleOffScreenMenu">
-          <span></span>
-          <span></span>
-          <span></span>
-         </div>
-      </nav>
+
+
+
+        <!-- Sidebar -->
 
         <div class="left-container">
             <div class="logo-container">
                 <img src="@/assets/logo2.png" class="logo" style="width:30px;">
-            <label style="font-size:28px;">Checkplify</label>
+                <label style="font-size:28px;">Checkplify</label>
             </div>
-            <div class="Left-menu-container">
-                <div class="db-container">
-                    <li><Link :href="route('dashboard')" :class="{active:$page.url.startsWith('/dashboard')}">DashBoard</Link></li>
-                </div>
-                <div class="rp-container">
-                    <Link :href="route('qrcode')">QR Code</Link>
-                </div>
-                <div v-if="role === 'developer'" class="company-container">
-                    <Link :href="route('company')" :class="{active:$page.url.startsWith('/company')}">Company</Link>
-                </div>
+            <div class="Left-menu-container mt-4">
+                <ul class="p-0">
 
-                <div v-if="role === 'developer'" class="company-container">
-                    <Link :href="route('user')" :class="{active:$page.url.startsWith('/user')}">User</Link>
-                </div>
-                <div class="rp-container">
-                    <router-link to="/report">Report</router-link>
-                </div>
-                <div class="att-container">
-                    <router-link to="/attendance">Attendance</router-link>
-                </div>
-                <div class="st-container" @mouseenter="SetdropdownVisible = true" @mouseleave="SetdropdownVisible = false" >
-                    <label >Setting</label>
-                    <transition name="fade">
-                        <div class="set-dropdown" v-show="SetdropdownVisible">
-                            <ul>
-                                <li><Link :href="route('accountInformation')">Account Information</Link></li>
-                                <li><router-link to="/ChangePassword">Change Password</router-link></li>
+                    <li :class="{ active: $page.url.startsWith('/dashboard') }">
+                        <Link :href="route('dashboard')"
+                            class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                        <span class="icon">
+                            <i class="fa-solid fa-house"></i>
+                        </span>
+                        <span>Dashboard</span>
+                        </Link>
+                    </li>
 
-                            </ul>
-                        </div>
-                    </transition>
-                </div>
+                    <!-- Developer Role -->
+                    <div v-if="role === 'developer'">
+
+                        <li :class="{ active: $page.url.startsWith('/company') }">
+                            <Link :href="route('company')"
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                    <i class="fa-solid fa-building"></i>
+                                </span>
+                                <span>Company</span>
+                            </Link>
+                        </li>
+
+                        <li :class="{ active: $page.url.startsWith('/user') }">
+                            <Link :href="route('user')"
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
+                            <span class="icon">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+                            <span>User</span>
+                            </Link>
+                        </li>
+                    </div>
+                    <!-- End Developer Role -->
+
+                    <!-- Admin Role -->
+                     <div v-if="role === 'admin'">
+                        <li :class="{ active: $page.url.startsWith('/position') }">
+                            <Link :href="route('position.index')"
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </span>
+                                <span>Position</span>
+                            </Link>
+                        </li>
+
+                        <li :class="{ active: $page.url.startsWith('/employee') }">
+                            <Link :href="route('employee.index')"
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </span>
+                                <span>Employee</span>
+                            </Link>
+                        </li>
+                     </div>
+                    <!-- End Admin Role -->
+
+                    
+                   
+                    
+                    <!-- Settings -->
+                    <li>
+                        <button @click="toggleSetdrop"
+                            class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
+                            <span class="icon">
+                                <i class="fa-solid fa-gear"></i>
+                            </span>
+                            <span>Settings</span>
+                            <i class="fa-solid fa-angle-down"
+                                :class="{ 'rotate': SetdropdownVisible, 'rotate-back': !SetdropdownVisible }"></i>
+                        </button>
+
+                    </li>
+                    <div class="settings-dropdown" v-show="SetdropdownVisible">
+                        <ul>
+                            <li :class="{ active: $page.url.startsWith('/account-information') }">
+                                <Link :href="route('accountInformation')">
+                                Account Information
+                                </Link>
+                            </li>
+                            <li>
+                                <Link :href="route('processLogout')">
+                                Log out
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Settings -->
+
+                </ul>
             </div>
         </div>
 
@@ -91,9 +119,11 @@
                 </div>
                 <div class="profile-container" @click="toggleDropdown">
                     <i class="fa-solid fa-user"></i>
-                    <div class="profile-dropdown" >
+                    <div class="profile-dropdown">
                         <button class="btn-profile">My Profile
-                            <i class="fa-solid fa-angle-down" :class="{'rotate': ProfiledropdownVisible, 'rotate-back': !ProfiledropdownVisible}" style="background-color:white;font-size:20px;"></i>
+                            <i class="fa-solid fa-angle-down"
+                                :class="{ 'rotate': ProfiledropdownVisible, 'rotate-back': !ProfiledropdownVisible }"
+                                style="background-color:white;font-size:20px;"></i>
                         </button>
                         <transition name="fade">
                             <div class="dropdown" v-show="ProfiledropdownVisible">
@@ -101,12 +131,12 @@
                                     <li>
                                         <!-- <router-link to="/edit-profile">Edit Profile</router-link> -->
                                         <Link :href="route('accountInformation')">
-                                            Edit Profile
+                                        Edit Profile
                                         </Link>
                                     </li>
                                     <li>
                                         <Link :href="route('processLogout')">
-                                            Log out
+                                        Log out
                                         </Link>
                                     </li>
                                 </ul>
@@ -116,11 +146,8 @@
                 </div>
             </div>
             <div id="right-container">
-<!--                <div class="right-container">-->
-<!--                </div>-->
                 <div class="link-container">
-                    <!--                <router-view></router-view>-->
-                    <slot/>
+                    <slot />
                 </div>
             </div>
         </div>
@@ -129,34 +156,39 @@
     </div>
 </template>
 
+
 <style>
-.main-container:has(#menu-bar-wrapper input[type=checkbox]:checked){
-    & .left-container{
+.main-container:has(#menu-bar-wrapper input[type=checkbox]:checked) {
+    & .left-container {
         width: 0;
         min-width: 0;
         padding-left: 0;
         padding-right: 0;
     }
 }
-#menu-bar-wrapper{
-    & label{
-        & i{
+
+#menu-bar-wrapper {
+    & label {
+        & i {
             font-size: 20px;
             cursor: pointer;
         }
     }
-    & input[type=checkbox]{
+
+    & input[type=checkbox] {
         visibility: hidden;
         appearance: none;
         display: none;
     }
 }
-#main-content{
+
+#main-content {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
-#nav-bar{
+
+#nav-bar {
     background-color: #FFFFFF;
     box-shadow: 1px 1px 4px 0 rgb(0, 0, 0, 0.25);
     padding: 20px;
@@ -166,9 +198,11 @@
     align-items: center;
     z-index: 1;
 }
-li{
+
+li {
     list-style-type: none;
 }
+
 .logo-container {
     display: flex;
     align-items: center;
@@ -177,43 +211,28 @@ li{
     gap: 1rem;
 }
 
-
 .main-container {
     display: flex;
 }
 
-.off-screen-menu {
-    display: none;
-}
-
-.off-screen-menu-bg {
-    display: none;
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.25);
-    z-index: 900;
-}
-
-.left-container{
+.left-container {
     width: 100%;
     min-width: 250px;
     max-width: 250px;
     overflow: hidden;
-    transition: all 0.5s;
+    transition: all 200ms ease-in-out;
 }
+
+
 
 .main-container .left-container {
     background-color: #0092E1;
     color: white;
-    /* height: 100%; */
     min-height: 100vh;
     padding: 20px;
 }
 
-.logo-container > label {
+.logo-container>label {
     font-family: 'Poppins', sans-serif;
 }
 
@@ -224,126 +243,34 @@ li{
     /* height: 100%; */
 }
 
-.Left-menu-container {
-    /* padding: 20px 40px; */
-    margin-top: 50px;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2.2rem;
-
-}
-
 .router-link-active {
     background-color: #1db1ff !important;
     color: white;
 }
 
-.Left-menu-container > div {
+.Left-menu-container>ul {
     width: 100%;
+
+    & li {
+        margin-bottom: 10px;
+
+        & a {
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 500;
+            padding-left: 18px;
+        }
+
+    }
 }
 
 .icon {
     width: 30px;
 }
 
-.st-container{
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.st-container:hover .set-dropdown {
-    display: block;
-    transition: all ease 0.3s;
-}
-
-
-.st-container .set-dropdown ul{
-    margin-top: 10px;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-}
-
-.st-container .set-dropdown ul li {
-    width: 100%;
-}
-
-.st-container .set-dropdown ul li a{
-    background-image:none;
-    background-color:white;
-    color:#0092E1 ;
-    font-size: 16px;
-    width: 100%;
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-}
-
-.st-container .set-dropdown ul li a:hover{
-    background-image:none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.st-container label{
-    color: white;
-    font-size: 20px;
-    font-family: "Poppins", sans-serif;
-    transition: background-color 0.7s ease, transform 0.6s ease-in-out;
-    background-size: 20px;
-    display: flex;
-    align-items: center;
-    padding: 2px 50px;
-    background-position: 10px;
-}
-
-.st-container label:hover{
-    background-color: white;
-    color: #0092E1;
-    transform: scale(1.05);
-    width: 250px;
-    border-radius: 4px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 4px 50px;
-    background-position: 10px;
-}
-
-.st-container .set-dropdown ul li a:hover{
-    background-color: #f0f0f0;
-}
-
-
-.Left-menu-container a {
-    color: white;
-    text-decoration: none;
-    font-size: 20px;
-    font-family: "Poppins", sans-serif;
-    transition: background-color 0.7s ease, transform 0.6s ease-in-out;
-    background-size: 20px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    /* padding: 2px 50px; */
-    background-position: 10px;
-    padding: 4px 50px;
-}
-
-.Left-menu-container a:hover {
+.Left-menu-container li:hover {
     background-color: white;
     color: #0092E1;
     /* transform: scale(1.05); */
@@ -353,86 +280,75 @@ li{
     justify-content: flex-start;
     background-position: 10px;
 
+    & a {
+        color: #0092E1 !important;
+    }
+
+}
+
+.Left-menu-container li.active {
+    background-color: white;
+    color: #0092E1;
+    border-radius: 4px;
+
+    & a {
+        color: #0092E1 !important;
+    }
 }
 
 
-.Left-menu-container .db-container{
-    & a{
-        background-image: url('@/assets/dashboard.png');
-        background-repeat: no-repeat;
-        display: inline-block;
-        width: 100%;
-        display: block;
-    }
+li button{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px;
 
-    & a.active, a:hover{
+    &:hover{
         background-color: white;
         color: #0092E1;
         border-radius: 4px;
-        background-image: url('@/assets/dbBlue.png');
-        background-repeat: no-repeat;
-        display: inline-block;
+
+        & span{
+            color: #0092E1;
+        }
+
+        & i{
+            color: #0092E1;
+        }
+    }
+}
+
+.settings-dropdown>ul {
+    list-style: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding: 0 !important;
+    padding-left: 25px !important;
+}
+
+.settings-dropdown>ul li {
+    width: 100%;
+    padding: 0 !important;
+
+    & a {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100% !important;
+        color: white;
+        text-decoration: none;
+        padding: 10px !important;
     }
 }
 
 
-
-.Left-menu-container .company-container{
-    & a{
-        background-image: url('@/assets/rp.png');
-        background-repeat: no-repeat;
-        width: 100%;
-        display: block;
-    }
-
-    & a.active, a:hover{
-        background-color: white;
-        color: #0092E1;
-        border-radius: 4px;
-        background-image: url('@/assets/rpBlue.png');
-        background-repeat: no-repeat;
-        display: inline-block;
-    }
-}
-
-.Left-menu-container .rp-container a {
-    background-image: url('@/assets/rp.png');
-    background-repeat: no-repeat;
-    width: 100%;
-    display: block;
-}
-
-.Left-menu-container .rp-container a:hover {
-    background-image: url('@/assets/rpBlue.png');
-    background-repeat: no-repeat;
-    display: inline-block;
-}
-
-.Left-menu-container .att-container a {
-    background-image: url('@/assets/att.png');
-    background-repeat: no-repeat;
-    width: 100%;
-    display: block;
-}
-
-.Left-menu-container .att-container a:hover {
-    background-image: url('@/assets/attBlue.png');
-    background-repeat: no-repeat;
-    display: inline-block;
-}
-
-.Left-menu-container .st-container label {
-    background-image: url('@/assets/set.png');
-    background-repeat: no-repeat;
-    width: 100%;
-    display: block;
-}
-
-.Left-menu-container .st-container label:hover {
-    background-image: url('@/assets/setBlue.png');
-    background-repeat: no-repeat;
-    display: inline-block;
-}
 
 #right-container {
     display: flex;
@@ -448,7 +364,8 @@ li{
 }
 
 
-.right-container, .link-container {
+.right-container,
+.link-container {
     width: 100%;
     /* height: 100vh; */
     /* padding: 36px 26px; */
@@ -464,10 +381,19 @@ li{
 
 }
 
-.profile-container{
+.profile-container {
     display: flex;
     gap: 1rem;
 
+}
+
+.Left-menu-container .position-container {
+    & a {
+        background-image: url('@/assets/rp.png');
+        background-repeat: no-repeat;
+        width: 100%;
+        display: block;
+    }
 }
 
 .right-container a {
@@ -496,7 +422,7 @@ li{
     align-items: center;
 }
 
-.profile-dropdown{
+.profile-dropdown {
     display: flex;
     flex-direction: column;
     font-family: "Poppins", sans-serif;
@@ -505,7 +431,7 @@ li{
 
 
 
-.profile-dropdown ul{
+.profile-dropdown ul {
     list-style: none;
     display: flex;
     align-items: flex-start;
@@ -515,7 +441,7 @@ li{
 
 }
 
-.profile-dropdown ul li{
+.profile-dropdown ul li {
     position: relative;
     background-color: #F4F6FA;
     top: 15px;
@@ -526,15 +452,15 @@ li{
 
 }
 
-.profile-dropdown ul li a{
+.profile-dropdown ul li a {
     font-size: 16px;
 }
 
-.profile-dropdown ul li a:hover{
+.profile-dropdown ul li a:hover {
     color: #0092E1;
 }
 
-.btn-profile{
+.btn-profile {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -575,10 +501,13 @@ li{
     transition: transform 0.2s ease-in-out;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
-.fade-enter-from, .fade-leave-to {
+
+.fade-enter-from,
+.fade-leave-to {
     opacity: 0;
     transform: translateY(-10px);
 }
@@ -589,110 +518,40 @@ li{
     transition: transform 0.2s ease-in-out;
 }
 
-.router-link-active{
+.router-link-active {
     background-color: white;
 }
 
-.router-link-exact-active{
+.router-link-exact-active {
     background-color: white;
     color: white;
 }
 
-@media (max-width: 950px){
+@media (max-width: 950px) {
 
-    .main-container{
+    .main-container {
         position: relative;
     }
 
-    .left-container{
-        width: 0;
-        min-width: 0;
+    .left-container {
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
         overflow: hidden;
-        /* position: absolute; */
-        margin-left: -100px;
-        margin-right: 60px;
     }
 
-    .logo-container{
-        margin-top: 7rem;
-        color: white;
+    .main-container:has(#menu-bar-wrapper input[type=checkbox]:checked) {
+        & .left-container {
+            width: 250px !important;
+            min-width: 250px !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+        }
     }
 
-    .off-screen-menu-bg.active {
-        display: block;
-    }
-    .off-screen-menu {
-        background-color:#0092E1;
-        height: 100vh;
-        width: 100%;
-        max-width: 250px;
-        position: fixed;
-        top: 0;
-        left: -350px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 24px;
-        transition: 0.3s ease;
-        z-index: 1000;
-    }
-    .off-screen-menu.active {
-        left:0;
-    }
-
-    nav{
-        display: flex;
-        position: absolute;
-        top: 45px;
-        left: 45px;
-        z-index: 1001;
-        cursor: pointer;
-    }
-
-    .ham-menu{
-        height: 25px;
-        width: 25px;
-        margin-left:auto;
-        position: relative;
-    }
-
-    .ham-menu span{
-        height: 4px;
-        width: 100%;
-        background-color: black;
-        border-radius: 25px;
-        position: absolute;
-        top:50%;
-        left: 50%;
-        transform: translate(-50%,-50%);
-        transition: 0.3s ease;
-    }
-
-    .ham-menu span:nth-child(1){
-        top: 25%;
-    }
-
-    .ham-menu span:nth-child(3){
-        top: 75%;
-    }
-
-    .ham-menu.active span:nth-child(1){
-        top: 50%;
-        transform: translate(-50%,-50%) rotate(45deg);
-        background-color: white;
-    }
-
-    .ham-menu.active span:nth-child(2){
-        opacity: 0;
-    }
-
-    .ham-menu.active span:nth-child(3){
-        top: 50%;
-        transform: translate(-50%,-50%) rotate(-45deg);
-        background-color: white;
-    }
-
-    .search-container{
+    .search-container {
         margin-left: 7rem;
     }
 }
@@ -700,20 +559,22 @@ li{
 
 
 
-@media (max-width: 750px){
+@media (max-width: 750px) {
 
-    .txt-search input{
+    .txt-search input {
         width: 300px;
     }
 
     .profile-container i {
         font-size: 16px;
     }
-    .profile-dropdown a{
+
+    .profile-dropdown a {
         white-space: nowrap;
         font-size: 16px;
     }
 }
+
 /* .link-container {
     width: 100%;
     height: 100%;
@@ -721,22 +582,26 @@ li{
 </style>
 
 <script>
-import {Link,usePage} from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 
 export default {
-    components: {Link},
+    components: { Link },
     mounted() {
-      const {auth} = usePage().props;
-      this.role = auth.role;
-      this.user = auth.user;
+        const { auth } = usePage().props;
+        this.role = auth.role;
+        this.user = auth.user;
+
+        if(this.$page.url.startsWith('/account-information')){
+            this.SetdropdownVisible = true;
+        }
     },
     data() {
         return {
             ProfiledropdownVisible: false,
             SetdropdownVisible: false,
             offScreenMenuActive: false,
-            user:null,
-            role:null,
+            user: null,
+            role: null,
         };
     },
     methods: {
@@ -745,9 +610,6 @@ export default {
         },
         toggleSetdrop() {
             this.SetdropdownVisible = !this.SetdropdownVisible;
-        },
-        toggleOffScreenMenu() {
-            this.offScreenMenuActive = !this.offScreenMenuActive; // <-- Toggle menu visibility
         },
     }
 };

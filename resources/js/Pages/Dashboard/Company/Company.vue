@@ -27,7 +27,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="phone_number" class="form-label">Phone Number</label>
-                                        <input type="number" v-model="form_data.phone_number" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="Enter Phone Number*">
+                                        <input type="text" v-model="form_data.phone_number" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="Enter Phone Number*">
                                         <div class="invalid-feedback">
                                             {{errors.phone_number}}
                                         </div>
@@ -39,14 +39,18 @@
                                             <img v-if="form_data.old_logo" :src="'/images/logo/'+form_data.old_logo" id="logo-preview" alt="">
                                             <img v-else src="@/assets/No-Image-Placeholder.svg.png" id="logo-preview" alt="">
                                         </div>
-                                        <label for="logo" class="form-label">Logo</label>
+                                        <label for="logo" class="form-label" :class="{'is-invalid':errors.logo !== ''}">Logo</label>
                                         <input
                                             type="file"
                                             class="form-control"
                                             id="logo"
+                                            accept="image/png, image/webp, image/jpeg, image/jpg"
                                             @change="onChangeFile"
                                             onchange="document.getElementById('logo-preview').src = window.URL.createObjectURL(this.files[0])"
                                         >
+                                        <div class="invalid-feedback">
+                                            {{errors.logo}}
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -190,6 +194,7 @@ export default{
                 name:"",
                 email:"",
                 phone_number:"",
+                logo:""
             },
             search: this.filters.search || '',
             debounceTimer: null,
@@ -207,6 +212,10 @@ export default{
             }, 300)
         },
         save(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let vm = this;
             this.clearErrors()
             this.form_data.post(route('createCompany'),{
@@ -222,8 +231,13 @@ export default{
                     console.log(this.errors);
                 }
             })
+            $.LoadingOverlay("hide");
         },
         saveEdit(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let vm = this;
             this.clearErrors()
             this.form_data.post(route('saveEditCompany'),{
@@ -239,6 +253,7 @@ export default{
                     console.log(this.errors);
                 }
             })
+            $.LoadingOverlay("hide");
         },
         onEdit(item){
           this.form_data.id = item.id;
@@ -254,6 +269,10 @@ export default{
             $("#deleteModal").modal('show');
         },
         onCfDelete(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let form = useForm({id:this.form_data.id})
             form.post(route('deleteCompany'),{
                 onSuccess:()=> $("#deleteModal").modal('hide'),
@@ -261,6 +280,7 @@ export default{
                     console.log(err)
                 }
             })
+            $.LoadingOverlay("hide");
         },
         onChangeFile(evt){
           let file = evt.target.files[0];
@@ -272,6 +292,7 @@ export default{
             this.errors.name = "";
             this.errors.email = "";
             this.errors.phone_number = "";
+            this.errors.logo = "";
         },
         clearForms(){
             this.form_data.id = null;

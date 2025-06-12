@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('position', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('qrcode', function (Blueprint $table) {
+            $table->string('image')->after('token')->nullable();
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('position');
+        Schema::table('qrcode', function (Blueprint $table) {
+            $table->dropColumn('image');
+        });
     }
 };

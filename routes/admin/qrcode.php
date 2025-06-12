@@ -7,4 +7,4 @@ Route::get("/qrcode",[QRCodeController::class,'showQRCode'])->name('qrcode');
 Route::post("/qrcode/create",[QRCodeController::class,'save'])->name('createQRCode');
 Route::post("/qrcode/save/image",[QRCodeController::class,'saveQRCodeImage'])->name('saveQRCodeImage');
 //Route::post("/user/update",[QRCodeController::class,'update'])->name('saveUser');
-//Route::post("/user/delete",[QRCodeController::class,'delete'])->name('deleteUser');
+Route::post("/qrcode/delete",[QRCodeController::class,'delete'])->name('deleteQRCode');

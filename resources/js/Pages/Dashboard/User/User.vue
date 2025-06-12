@@ -287,6 +287,10 @@ export default{
             }, 300)
         },
         save(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let vm = this;
             this.clearErrors()
             this.form_data.post(route('createUser'),{
@@ -302,8 +306,13 @@ export default{
                     console.log(this.errors);
                 }
             })
+            $.LoadingOverlay("hide");
         },
         saveEdit(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let vm = this;
             this.clearErrors()
             this.form_data.post(route('saveUser'),{
@@ -319,6 +328,7 @@ export default{
                     console.log(this.errors);
                 }
             })
+            $.LoadingOverlay("hide");
         },
         onEdit(item){
             this.form_data.id = item.id;
@@ -339,6 +349,10 @@ export default{
             $("#deleteModal").modal('show');
         },
         onCfDelete(){
+            $.LoadingOverlay("show",{
+                background:"rgb(0 0 0 / 35%)",
+                imageColor:"#ffffff"
+            });
             let form = useForm({id:this.form_data.id})
             form.post(route('deleteUser'),{
                 onSuccess:()=> $("#deleteModal").modal('hide'),
@@ -346,6 +360,7 @@ export default{
                     console.log(err)
                 }
             })
+            $.LoadingOverlay("hide");
         },
         onChangeFile(evt){
             let file = evt.target.files[0];

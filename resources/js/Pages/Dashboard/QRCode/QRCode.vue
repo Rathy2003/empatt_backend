@@ -1,6 +1,23 @@
 <template>
     <MainLayout>
-<!--        <p v-if="latitude && longitude">Lat: {{ latitude }}, Lng: {{ longitude }}</p>-->
+        <!-- QRCode Preview -->
+        <div class="image-popup-modal" :class="{ active: isPopupActive }" @click.self="closePopup">
+            <button class="close-popup-btn" @click="closePopup" aria-label="Close image popup">&times;</button>
+
+            <div class="loading-indicator" v-if="isLoading">Loading...</div>
+
+            <div class="popup-image-container" v-show="!isLoading">
+                <img :src="actualImageUrl" alt="Popup Image" class="popup-image"
+                     :style="{ transform: 'scale(' + currentScale + ')' }"
+                     @wheel.prevent="handleWheelZoom">
+            </div>
+
+            <div class="popup-controls" v-show="!isLoading">
+                <button @click="zoomIn" aria-label="Zoom In">+</button>
+                <button @click="zoomOut" aria-label="Zoom Out">-</button>
+            </div>
+        </div>
+        <!-- End QRCode Preview -->
         <!-- Add and Edit QRCode Modal-->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -23,7 +40,6 @@
                                     <div @click="openMap" id="choose-map-wrapper">
                                         <i class="fa-solid fa-map-location"></i>
                                     </div>
-                                    <p>{{googleMapsUrl}}</p>
                                 </div>
                             </div>
                             <div style="width: 60%;position: relative">
@@ -56,11 +72,11 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete User?</h1>
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete QRCode?</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <h4>Are you sure delete this users?</h4>
+                        <h4>Are you sure delete this qrcode?</h4>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -110,21 +126,21 @@
                     <tr v-for="(item,index) in qrcode.data" :key="'qrcode_list'+index">
                         <td>{{index+1}}</td>
                         <td>
-<!--                            <div class="company-logo">-->
-<!--                                <img v-if="!item.photo" src="@/assets/no-image.jpg" alt="">-->
-<!--                                <img v-else :src="'/images/users/'+item.photo" onerror="this.src='error-image.jpg'"-->
-<!--                                     alt="">-->
-<!--                            </div>-->
+                            <div class="qrcode-thumbnail-wrapper">
+                                <img :src="'/images/qrcode/'+item.image" width="100%" height="100%">
+                            </div>
                         </td>
                         <td>{{item.name}}</td>
-                        <td>{{item.company_id}}</td>
-                        <td></td>
+                        <td>{{item.company.name}}</td>
                         <td>
                             <button @click="onDelete(item)" class="btn btn-outline-danger">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                             <button @click="onEdit(item)" class="btn btn-outline-primary mx-2">
                                 <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button  @click="onView(item)" class="btn btn-outline-success">
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                     </tr>
@@ -152,26 +168,21 @@
 
 <script>
 import MainLayout from "@/Layouts/MainLayout.vue";
-import {useForm,router} from "@inertiajs/vue3";
-import noImage from "@/assets/No-Image-Placeholder.svg.png"
+import {router, useForm} from "@inertiajs/vue3";
 import QRCode from "qrcode";
 
 export default{
     components: {MainLayout},
     props: {
-        qrcode:Array,
+        qrcode:Object,
         filters: Object,
         company_id:Number,
-        qrGenerated: false
     },
     mounted() {
-        console.log(this.qrcode)
         let vm = this;
         $("#staticBackdrop").on("hide.bs.modal", function(){
             vm.clearForms()
             vm.clearErrors()
-            // document.getElementById("logo-preview").src = noImage
-            // document.querySelector("input[type=file]").value = "";
         })
 
         $("#deleteModal").on("hide.bs.modal", function(){
@@ -195,22 +206,28 @@ export default{
             map: null,
             marker: null,
             showMap: false,
-            googleMapsEmbedUrl:null
+            googleMapsEmbedUrl:null,
+            isPopupActive: false,
+            isLoading: false,
+            imageUrl: '',
+            actualImageUrl: '',
+            currentScale: 1,
+            zoomStep: 0.2,
+            minScale: 0.4,
+            maxScale: 3.0,
+        }
+    },
+    watch: {
+        // Watch for changes in isPopupActive to manage body overflow
+        isPopupActive(newValue) {
+            if (newValue) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
         }
     },
     methods:{
-        // async generateQRCode() {
-        //     // const canvas = this.$refs.qrcodeCanvas;
-
-        //     this.qrGenerated = true;
-        // },
-        // downloadQR() {
-        //     const canvas = this.$refs.qrcodeCanvas;
-        //     const link = document.createElement('a');
-        //     link.download = 'qrcode.png';
-        //     link.href = canvas.toDataURL();
-        //     link.click();
-        // },
         openMap() {
             this.showMap = true;
 
@@ -232,7 +249,6 @@ export default{
                 zoom: 8,
             });
 
-            // Add click listener safely
             this.addMapClickListener();
         },
         addMapClickListener() {
@@ -250,7 +266,6 @@ export default{
                     });
                 }
 
-                // Reverse geocode
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode({ location: clickedLocation }, (results, status) => {
                     if (status === "OK" && results[0]) {
@@ -324,29 +339,24 @@ export default{
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
                     let token = vm.qrcode.data[0].token
-                        await QRCode.toDataURL(token, {
-                            width: 200,
-                            margin: 2,
-                        }).then( async response => {
-                            await fetch(response).then(it => {
-                                let blob = it.blob()
-                                const file = new File(
-                                    [blob],
-                                    "fileName.jpg",
-                                    {
-                                        type: "image/jpeg",
-                                        lastModified: new Date()
-                                    }
-                                );
-                                let new_form = useForm({file:file})
-                                new_form.post(route('saveQRCodeImage'),{
-                                    onSuccess:()=>{
-                                        console.log("Saved")
-                                    }
-                                })
-                            })
+                    let id = vm.qrcode.data[0].id;
+                    await QRCode.toDataURL(token, {
+                        width: 200,
+                        margin: 2,
+                    }).then( async response => {
+                        const res = await fetch(response);
+                        const blob = await res.blob();
+                        let file = new File([blob], "qrcode.png", {type: blob.type});
+                        let formData = useForm({
+                            id: id,
+                            image:file
+                        });
+                        formData.post(route('saveQRCodeImage'),{
+                            onSuccess:()=>{
+                                $("#staticBackdrop").modal('hide');
+                            }
                         })
-
+                    })
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -389,60 +399,213 @@ export default{
         },
         onDelete(item){
             this.form_data.id = item.id;
-            console.log(this.form_data.id);
             $("#deleteModal").modal('show');
         },
         onCfDelete(){
             let form = useForm({id:this.form_data.id})
-            form.post(route('deleteUser'),{
+            form.post(route('deleteQRCode'),{
                 onSuccess:()=> $("#deleteModal").modal('hide'),
                 onError:(err) =>{
                     console.log(err)
                 }
             })
         },
-        onChangeFile(evt){
-            let file = evt.target.files[0];
-            if(file){
-                this.form_data.photo = file
-            }
+        onView(item){
+            this.imageUrl = `/images/qrcode/${item.image}`
+            this.openPopup()
         },
         clearErrors(){
-            this.errors.firstname = "";
-            this.errors.lastname = "";
-            this.errors.email = "";
-            this.errors.phone_number = "";
-            this.errors.gender = "";
-            this.errors.company_id = "";
-            this.errors.role = "";
-            this.errors.password = "";
-            this.errors.confirm_password = "";
+            this.errors.name = ""
         },
         clearForms(){
             this.form_data.id = null;
-            this.form_data.firstname = "";
-            this.form_data.lastname = "";
-            this.form_data.email = "";
-            this.form_data.phone_number = "";
-            this.form_data.photo = null;
-            this.form_data.old_photo = null;
-            this.form_data.company_id = "";
-            this.form_data.password = "";
-            this.form_data.confirm_password = "";
-            this.form_data.gender = "";
-            this.form_data.role = "";
+            this.form_data.name = "";
+            this.form_data.latitude = null;
+            this.form_data.longitude = null;
+            this.googleMapsEmbedUrl = null
         },
         goToPage(url) {
             router.visit(url, {
                 preserveScroll: true,
                 preserveState: true,
             })
+        },
+        openPopup() {
+            this.loadImage();
+        },
+        closePopup() {
+            this.isPopupActive = false;
+            this.resetZoom();
+        },
+        loadImage() {
+            this.isLoading = true;
+            this.actualImageUrl = '';
+
+            const img = new Image();
+            img.onload = () => {
+                this.actualImageUrl = this.imageUrl;
+                this.isLoading = false;
+                this.isPopupActive = true;
+                this.resetZoom();
+            };
+            img.onerror = () => {
+                console.error('Error loading image.');
+                this.isLoading = false;
+                this.actualImageUrl = 'https://placehold.co/600x400/f00/fff?text=Error+Loading+Image';
+                this.isPopupActive = true;
+            };
+            img.src = this.imageUrl;
+        },
+        zoomIn() {
+            if (this.currentScale < this.maxScale) {
+                this.currentScale += this.zoomStep;
+                this.applyZoom();
+            }
+        },
+        zoomOut() {
+            if (this.currentScale > this.minScale) {
+                this.currentScale -= this.zoomStep;
+                this.applyZoom();
+            }
+        },
+        handleWheelZoom(event) {
+            if (!this.isPopupActive || this.isLoading) return;
+
+            if (event.deltaY < 0) {
+                if (this.currentScale < this.maxScale) {
+                    this.currentScale += this.zoomStep / 2;
+                }
+            } else { // Scroll down (zoom out)
+                if (this.currentScale > this.minScale) {
+                    this.currentScale -= this.zoomStep / 2;
+                }
+            }
+            this.applyZoom();
+        },
+        applyZoom() {
+            this.currentScale = Math.max(this.minScale, Math.min(this.maxScale, this.currentScale));
+        },
+        resetZoom() {
+            this.currentScale = 1;
         }
     }
 }
 </script>
 
 <style>
+.view-image-btn {
+    padding: 12px 25px;
+    font-size: 16px;
+    color: white;
+    background-color: #5cb85c; /* Vue Green */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.view-image-btn:hover {
+    background-color: #4cae4c;
+}
+
+.image-popup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: none; /* Controlled by :class */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.image-popup-modal.active {
+    display: flex;
+}
+
+.popup-image-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90vw;
+    height: 90vh;
+}
+
+.popup-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transform-origin: center center;
+    transition: transform 0.2s ease-in-out;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    /* 'transform' is now handled by direct style binding in template */
+}
+
+.popup-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(40, 40, 40, 0.8);
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    z-index: 1010;
+}
+
+.popup-controls button {
+    background-color: #fff;
+    color: #333;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.popup-controls button:hover {
+    background-color: #e0e0e0;
+}
+
+.close-popup-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    z-index: 1010;
+    transition: color 0.2s ease;
+}
+.close-popup-btn:hover {
+    color: #ccc;
+}
+
+.loading-indicator {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+}
+
+div.qrcode-thumbnail-wrapper{
+    height: 70px;
+    aspect-ratio: 2 / 2;
+    border-radius: 2px;
+    margin: 0 auto;
+}
 #no-map-preview-msg{
     font-size: 30px;
     position: absolute;

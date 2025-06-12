@@ -24,6 +24,8 @@ Route::post('/login',[AuthController::class,'processLogin'])->name('processLogin
 
 include 'admin/authentication.php';
 include 'admin/dashboard.php';
+include 'admin/employee.php';
+include 'admin/position.php';
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');

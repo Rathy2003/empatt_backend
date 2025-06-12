@@ -37,8 +37,14 @@ class CompanyController extends Controller
         $request->validate([
            'name'=>'required|string|unique:company,name',
            'email'=>'required|email|unique:company,email',
-           'phone_number'=>'required|numeric|unique:company,phone_number',
+           'phone_number'=>'required|regex:/(0)[0-9]{8,12}/|unique:company,phone_number',
         ]);
+
+        if($request->hasFile('logo')){
+            $request->validate(
+                ['logo'=>'required|image|mimes:jpeg,png,jpg,webp|max:5000']
+            );
+        }
 
         $filename = null;
         if($request->logo){
@@ -65,12 +71,19 @@ class CompanyController extends Controller
             'id' => 'required|numeric|exists:company,id',
             'name'=>'required|string|unique:company,name,'.$request->id,
             'email'=>'required|email|unique:company,email,'.$request->id,
-            'phone_number'=>'required|string|unique:company,phone_number,'.$request->id,
+            'phone_number'=>'required|regex:/(0)[0-9]{8,12}/|unique:company,phone_number,'.$request->id,
         ]);
+
+        if($request->hasFile('logo')){
+            $request->validate(
+                ['logo'=>'required|image|mimes:jpeg,png,jpg,webp|max:5000']
+            );
+        }
 
         $old_logo = $request->old_logo;
 
         if($request->logo && $request->logo != $old_logo){
+
             if(!$old_logo){
                 $filename = $request->logo->getClientOriginalName();
                 $filename =  time().$filename;
