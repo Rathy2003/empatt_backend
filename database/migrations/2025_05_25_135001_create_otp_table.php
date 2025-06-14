@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('otp', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')
                 ->references('id')
@@ -21,6 +20,8 @@ return new class extends Migration
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->string('code');
+            $table->dateTime('expired_at')->nullable();
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
         });
     }

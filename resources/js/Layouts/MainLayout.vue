@@ -120,7 +120,7 @@
                 <div class="profile-container" @click="toggleDropdown">
                     <i class="fa-solid fa-user"></i>
                     <div class="profile-dropdown">
-                        <button class="btn-profile">My Profile
+                        <button class="btn-profile">{{ user?  user.firstname:'' }}
                             <i class="fa-solid fa-angle-down"
                                 :class="{ 'rotate': ProfiledropdownVisible, 'rotate-back': !ProfiledropdownVisible }"
                                 style="background-color:white;font-size:20px;"></i>
@@ -587,10 +587,9 @@ import { Link, usePage } from "@inertiajs/vue3";
 export default {
     components: { Link },
     mounted() {
-        const { auth } = usePage().props;
-        this.role = auth.role;
-        this.user = auth.user;
-
+        const { user,role } = usePage().props;
+        this.role = role;
+        this.user = user;
         if(this.$page.url.startsWith('/account-information')){
             this.SetdropdownVisible = true;
         }

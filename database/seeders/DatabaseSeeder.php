@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
 
 
         $developer = Role::create(['name' => 'developer']);
-        $owner = Role::create(['name' => 'owner']);
+        $ceo = Role::create(['name' => 'ceo']);
         $admin = Role::create(['name' => 'admin']);
 
         $fullControl = Permission::create(['name' => 'fullControl']);
@@ -52,9 +52,9 @@ class DatabaseSeeder extends Seeder
         $managePosition = Permission::create(['name' => 'managePosition']);
 
         $developer->givePermissionTo($fullControl);
-        $owner->givePermissionTo($manageEmployee);
+        $ceo->givePermissionTo($manageEmployee);
         $admin->givePermissionTo($manageQrCode);
-        $owner->givePermissionTo($managePosition);
+        $ceo->givePermissionTo($managePosition);
 
         $admin->givePermissionTo($manageEmployee);
         $admin->givePermissionTo($manageQrCode);

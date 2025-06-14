@@ -1,50 +1,58 @@
 <template>
+    <Head title="Login to CHECKPLIFY" />
     <form @submit.prevent="login">
         <div class="logIn-Form">
             <div class="logIn-Page">
                 <div class="title">
-                    Hello!<br>Welcome to SU1
+                    Hello!<br>Welcome to CHECKPLIFY
                 </div>
                 <div class="logIn-text">
                     Log In
                 </div>
                 <br><br>
                 <div class="txt-Container">
+                    <div class="message text-danger" v-if="errors.message !== ''">{{errors.message}}</div>
                     <div class="email">
                         <label style="font-weight:bold;color:#0092E1;margin-left:8px;font-size:20px">Email</label>
-                        <input type="text" :class="{'is-invalid':errors.email !== ''}" placeholder="Enter your email" v-model="form_data.email">
+                        <input @keyup="clearErrors" type="text" :class="{'is-invalid':errors.email !== ''}" placeholder="Enter your email" v-model="form_data.email">
                         <span class="is-invalid-msg" v-if="errors.email !== ''">{{errors.email}}</span>
                     </div>
 
                     <div class="password">
                         <label style="font-weight:bold;color:#0092E1;margin-left:8px;font-size:20px">Password</label>
-                        <input type="password" :class="{'is-invalid':errors.password !== ''}" placeholder="Enter your password" v-model="form_data.password">
+                        <input @keyup="clearErrors" type="password" :class="{'is-invalid':errors.password !== ''}" placeholder="Enter your password" v-model="form_data.password">
                         <span class="is-invalid-msg" v-if="errors.password !== ''">{{errors.password}}</span>
                     </div>
                     <div class="forget-password" style="">
-                        <a href="">Forget password?</a>
+                        <Link :href="route('resetPassword')">Forget password?</Link>
                     </div>
                     <div class="btn-log">
                         <button>Login</button>
                     </div>
                     <div class="create-account" style="">
-                        <label>no have account?</label>
+                        <label>Don't have account?</label>
                         <router-link to="/signin">Create Account</router-link>
                     </div>
                 </div>
 
             </div>
+            
         </div>
+        <div class="logIn-image">
+                <img src="/login.webp" alt="login-image">
+            </div>
     </form>
 </template>
 
 <script>
-import axios from "axios";
-import {useForm} from "@inertiajs/vue3";
+import {useForm,Head, Link} from "@inertiajs/vue3";
 
 export default {
+    components:{
+        Head,
+        Link
+    },
     mounted() {
-        // document.body.style.backgroundColor = "green"
         document.body.style.backgroundColor = "white"
     },
     data() {
@@ -56,6 +64,7 @@ export default {
             errors:{
                 email:"",
                 password:"",
+                message:""
             }
         }
     },
@@ -67,29 +76,17 @@ export default {
             }
         },
         login() {
+            $.LoadingOverlay("show");
             this.clearErrors()
             this.form_data.post(route('processLogin'), {
-                onFinish: () => console.log("sdaf"),
                 onError: (error) => {
                     this.errors = error;
+                    $.LoadingOverlay("hide");
+                },
+                onSuccess: () => {
+                    $.LoadingOverlay("hide");
                 }
             });
-            // axios.post(`${process.env.VUE_APP_API_BASE_URL}/login`, {
-            //         email:this.form_data.email,
-            //         password:this.form_data.password
-            //     }
-            // ).then(response => {
-            //     if(response.status === 200){
-            //         this.$router.push('/dashboard');
-            //     }
-            // }).catch(error => {
-            //     if(error.response.status === 400){
-            //         Object.keys(error.response.data).forEach((key) => {
-            //             let msg = error.response.data[key][0];
-            //             this.errors[key] = msg;
-            //         })
-            //     }
-            // })
         }
     }
 }
@@ -101,12 +98,12 @@ form {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 1200px;
+    width: 100%;
     height: 800px;
     background-color: #D9D9D9;
     box-shadow: 1px 1px 6px 0px hsla(0, 0%, 0%, 0.295);
     font-family: "Poppins", sans-serif;
+    display: flex;
 }
 
 form .logIn-Form {
@@ -128,13 +125,22 @@ form .logIn-Page {
     font-weight: bold;
 }
 
+.logIn-image{
+    width: 50%;
+    height: 800px;
+    background-color: #0092E1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .logIn-text {
     font-size: 58px;
     font-family: "Instrument Sans", sans-serif;
     font-weight: bold;
     text-align: left;
     color: #008EC2;
-    margin-top: 40px;
+    margin-top: 15px;
 }
 
 .txt-Container {
@@ -152,7 +158,7 @@ form .logIn-Page {
 }
 
 .email input[type="text"] {
-    padding: 2px 36px;
+    padding: 2px 18px;
     box-sizing: border-box;
     font-size: 16px;
     border: 1px solid #0092E1;
@@ -181,7 +187,7 @@ form .logIn-Page {
 }
 
 .password input[type="password"] {
-    padding: 2px 36px;
+    padding: 2px 18px;
     box-sizing: border-box;
     font-size: 16px;
     border: 1px solid #0092E1;

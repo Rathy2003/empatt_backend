@@ -85,7 +85,7 @@
                                         <label for="role" class="form-label">Role</label>
                                         <select v-model="form_data.role" id="role" class="form-control" :class="{'is-invalid':errors.role !== ''}">
                                             <option value="" disabled>Choose Role</option>
-                                            <option value="owner">Owner</option>
+                                            <option value="ceo">CEO</option>
                                             <option value="admin">Admin</option>
                                         </select>
                                         <div class="invalid-feedback">
@@ -100,7 +100,7 @@
                                         <img v-if="form_data.old_photo" :src="'/images/users/'+form_data.old_photo" id="logo-preview" alt="">
                                         <img v-else src="@/assets/No-Image-Placeholder.svg.png" id="logo-preview" alt="">
                                     </div>
-                                    <label for="logo" class="form-label">Logo</label>
+                                    <label for="logo" class="form-label">Profile</label>
                                     <input
                                         type="file"
                                         class="form-control"
