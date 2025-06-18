@@ -36,8 +36,8 @@ class CompanyController extends Controller
     public function save(Request $request){
         $request->validate([
            'name'=>'required|string|unique:company,name',
-           'email'=>'required|email|unique:company,email',
-           'phone_number'=>'required|regex:/(0)[0-9]{8,12}/|unique:company,phone_number',
+           'email'=>'nullable|email|unique:company,email',
+           'phone_number'=>'nullable|regex:/(0)[0-9]{8,12}/|unique:company,phone_number',
         ]);
 
         if($request->hasFile('logo')){
@@ -70,8 +70,8 @@ class CompanyController extends Controller
         $request->validate([
             'id' => 'required|numeric|exists:company,id',
             'name'=>'required|string|unique:company,name,'.$request->id,
-            'email'=>'required|email|unique:company,email,'.$request->id,
-            'phone_number'=>'required|regex:/(0)[0-9]{8,12}/|unique:company,phone_number,'.$request->id,
+            'email'=>'nullable|email|unique:company,email,'.$request->id,
+            'phone_number'=>'nullable|regex:/(0)[0-9]{8,12}/|unique:company,phone_number,'.$request->id,
         ]);
 
         if($request->hasFile('logo')){

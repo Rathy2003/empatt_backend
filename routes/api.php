@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-
 include 'client/authentication.php';
 include 'client/user.php';
+include 'client/attendance.php';
+include 'client/request_leave.php';

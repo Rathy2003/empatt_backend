@@ -14,10 +14,15 @@ class PositionController extends Controller
 {
     public function index()
     {
+        $search = request()->query('search');
         $company_id = Auth::user()->company_id;
-        $positions = Position::where('company_id', $company_id)->paginate(5);
+        $positions = Position::where('company_id', $company_id)->paginate(8);
+        if($search){
+            $positions = Position::where('company_id', $company_id)->where('name', 'like', "%{$search}%")->paginate(8);
+        }
         return Inertia::render('Dashboard/Position/Position',[
-            'positions' => $positions
+            'positions' => $positions,
+            'filters' => ['search' => $search]
         ]);
     }
 
@@ -67,14 +72,10 @@ class PositionController extends Controller
             ],
             'description' => 'nullable|string',
         ]);
-
-
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
         Position::where('id', $id)->update($request->only(['name', 'description']));
-
         return redirect()->route('position.index')->with('success', 'Position updated successfully');
     }
 
@@ -82,7 +83,6 @@ class PositionController extends Controller
     {
         $id = $request->id;
         Position::where('id', $id)->delete();
-
         return redirect()->route('position.index')->with('success', 'Position deleted successfully');
     }
 }

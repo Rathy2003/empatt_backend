@@ -20,11 +20,8 @@ return new class extends Migration
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->dateTime('scan_at');
-            $table->string('location');
-            $table->enum('present', ['Present', 'Absent'])->default(null);
-            $table->enum('absent', ['Present', 'Absent'])->default(null);
-            $table->decimal('total_wages',10,2)->default(0);
-            $table->enum('status',['pending','approved','rejected'])->default('pending');
+            $table->tinyInteger('present')->default(0);
+            $table->tinyInteger('absent')->default(0);
             $table->timestamps();
         });
     }

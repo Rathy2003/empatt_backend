@@ -2,9 +2,8 @@
     <MainLayout>
         <div class="container">
             <div class="row">
-
                 <!-- delete position modal -->
-                <div class="modal fade" id="deletePositionModal" tabindex="-1"
+                <div class="modal fade" id="deletePositionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
                     aria-labelledby="deletePositionModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -27,7 +26,7 @@
                 <!-- end delete position modal -->
 
                 <!-- add and edit position modal -->
-                <div class="modal fade" id="addPositionModal" tabindex="-1" aria-labelledby="addPositionModalLabel"
+                <div class="modal fade" id="addPositionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addPositionModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -43,7 +42,7 @@
                                         <label for="name" class="form-label mb-2">Name</label>
                                         <input v-model="form_data.name" type="text"
                                             :class="{ 'is-invalid': errors.name }" class="form-control" id="name"
-                                            name="name">
+                                            name="name" placeholder="Enter position name*">
                                         <div v-if="errors.name" class="invalid-feedback">
                                             {{ errors.name }}
                                         </div>
@@ -51,7 +50,7 @@
                                     <div class="form-group mb-3">
                                         <label for="description" class="form-label mb-2">Description</label>
                                         <textarea v-model="form_data.description" class="form-control" rows="8"
-                                            id="description" name="description"></textarea>
+                                            id="description" name="description" placeholder="Leave blank if you don't want to add description"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -72,13 +71,25 @@
                             <div class="txt-search">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                                 <input type="text"
-                                    placeholder="Search name, email or phone number"
+                                    v-model="search"
+                                    @input="searchItems"
+                                    placeholder="Search by name"
                           >
                             </div>
                         </div>
                         <button class="primary-button" data-bs-toggle="modal" data-bs-target="#addPositionModal"><i
                                 class="fa-solid fa-plus"></i>&nbsp;&nbsp;New Position</button>
                     </div>
+
+                    <!-- success message alert-->
+                    <div class="alert alert-success alert-dismissible fade show mb-0" role="alert" v-if="success.show">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>{{success.message}}</span>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <!-- success message alert-->
 
                     <!-- Position Listing -->
                     <div class="table-container" v-if="positions.data.length > 0">
@@ -95,7 +106,7 @@
                                 <tr v-for="(item, index) in positions.data" :key="'position_list' + index">
                                     <td>{{ index + 1 }}</td>
                                     <td>{{ item.name }}</td>
-                                    <td>{{ item.description }}</td>
+                                    <td :class="{'text-muted':!item.description}">{{ item.description ? item.description : '(null)' }}</td>
                                     <td>
                                         <button @click="deletePosition(item)" class="btn btn-outline-danger">
                                             <i class="fa-solid fa-trash"></i>
@@ -109,10 +120,21 @@
                         </table>
                     </div>
                     <!-- End Position Listing -->
+                    <div v-if="positions.data.length > 0" class="pagination">
+                        <button
+                            v-for="link in positions.links"
+                            :key="link.label"
+                            :disabled="!link.url"
+                            @click="goToPage(link.url)"
+                            v-html="link.label"
+                            class="px-2 pagination-item"
+                            :class="{'pagination-item-active':link.active}"
+                        />
+                    </div>
+
+                    <span class="not-found-msg" v-if="this.filters.search && positions.data.length == 0">No record founded.</span>
+                    <span class="not-found-msg" v-if="!this.filters.search && positions.data.length == 0">No record.</span>
                 </div>
-
-
-
             </div>
         </div>
     </MainLayout>
@@ -126,7 +148,8 @@ export default {
     components: { MainLayout },
     props: {
         errors: Object,
-        positions: Array
+        positions: Array,
+        filters: Object
     },
     mounted() {
         $("#addPositionModal").on("hidden.bs.modal", () => {
@@ -138,6 +161,12 @@ export default {
     },
     data() {
         return {
+            success:{
+                show:false,
+                message:''
+            },
+            search: this.filters.search || '',
+            debounceTimer: null,
             form_data: useForm({
                 id: null,
                 name: null,
@@ -146,6 +175,12 @@ export default {
         }
     },
     methods: {
+        searchItems(){
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(()=>{
+                this.$inertia.get(route('position.index'), {search: this.search}, {preserveState: true});
+            }, 500);
+        },
         clearForms() {
             this.form_data = useForm({
                 id: null,
@@ -154,16 +189,25 @@ export default {
             })
         },
         submitForm() {
+            $.LoadingOverlay("show");
             let url = this.form_data.id ? route('position.update', this.form_data.id) : route('position.store');
             this.form_data.post(url, {
                 onFinish: (res) => {
                     if (!this.errors.name) {
                         $("#addPositionModal").modal("hide");
                         this.clearForms();
+                        $.LoadingOverlay("hide");
+                        this.success.show = true;
+                        this.success.message = "Position added successfully";
+                        setTimeout(()=>{
+                            this.success.show = false;
+                            this.success.message = '';
+                        },3000);
                     }
                 },
                 onError: (error) => {
-                    console.log(error);
+                    alert("Something went wrong");
+                    $.LoadingOverlay("hide");
 
                 }
             })
@@ -179,10 +223,22 @@ export default {
             $("#deletePositionModal").modal("show");
         },
         deletePositionConfirm() {
+            $.LoadingOverlay("show");
             this.form_data.post(route('position.delete'), {
                 onFinish: (res) => {
                     $("#deletePositionModal").modal("hide");
                     this.clearForms();
+                    $.LoadingOverlay("hide");
+                    this.success.show = true;
+                    this.success.message = "Position deleted successfully";
+                    setTimeout(()=>{
+                        this.success.show = false;
+                        this.success.message = '';
+                    },3000);
+                },
+                onError: (error) => {
+                    alert("Something went wrong");
+                    $.LoadingOverlay("hide");
                 }
             })
         }

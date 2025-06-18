@@ -17,8 +17,5 @@ Route::middleware([CheckAuth::class])->group(function () {
     include 'company.php';
     include 'user.php';
     include 'qrcode.php';
-
-    Route::get('/account-information',[ProfileController::class,'showAccountInformation'])->name('accountInformation');
-    Route::post('/account-information/save',[ProfileController::class,'saveInformation'])->name('saveInformation');
-
 });
+

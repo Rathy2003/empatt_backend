@@ -10,3 +10,9 @@ Route::group(['middleware' => ['role:developer']], function () {
     Route::post("/user/delete",[UserController::class,'delete'])->name('deleteUser');
 });
 
+
+Route::group(['middleware' => ['role:admin|ceo']], function () {
+    Route::get('/account-information',[ProfileController::class,'showAccountInformation'])->name('accountInformation');
+    Route::post('/account-information/save',[ProfileController::class,'saveInformation'])->name('saveInformation');
+});
+

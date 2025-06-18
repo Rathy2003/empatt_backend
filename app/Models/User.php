@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Models\Role;
+use App\Models\Position;
+use App\Models\Company;
 
 class User extends Authenticatable
 {
@@ -25,6 +28,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'salary',
+        'position_id',
+        'hired_date',
+        'phone_number',
+        'address',
+        'status',
+        'photo',
     ];
 
     /**
@@ -55,8 +65,23 @@ class User extends Authenticatable
         return "{$this->fistname} {$this->lastname}";
     }
 
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')->first();
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(RequestLeave::class, 'employee_id');
     }
 }

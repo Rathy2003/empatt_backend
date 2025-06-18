@@ -40,7 +40,7 @@ class AuthController extends Controller
             'address' => $user->address,
             'photo' => $user->photo,
             'position_id' => $user->position_id,
-            'role' => $user->role,
+            'role' => $user->roles->first()->name,
             'hire_date' => $user->hire_date,
             'company_id' => $user->company_id,
             'iat' => time(),

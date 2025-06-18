@@ -1,11 +1,8 @@
 <template>
+    <Head title="Checkplify Admin Panel" />
 
     <div class="main-container">
-
-
-
         <!-- Sidebar -->
-
         <div class="left-container">
             <div class="logo-container">
                 <img src="@/assets/logo2.png" class="logo" style="width:30px;">
@@ -49,15 +46,29 @@
                     </div>
                     <!-- End Developer Role -->
 
-                    <!-- Admin Role -->
-                     <div v-if="role === 'admin'">
+                    <!-- CEO Role -->
+                    <div v-if="role === 'ceo'">
                         <li :class="{ active: $page.url.startsWith('/position') }">
                             <Link :href="route('position.index')"
-                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
                                 <span class="icon">
-                                    <i class="fa-solid fa-user-plus"></i>
+                                    <i class="fa-solid fa-user-tie"></i>
                                 </span>
                                 <span>Position</span>
+                            </Link>
+                        </li>
+                    </div>
+                    <!-- End CEO Role -->
+
+                    <!-- Admin And CEO Role -->
+                    <div v-if="role === 'admin' || role === 'ceo'">
+                        <li :class="{ active: $page.url.startsWith('/request-leave') }">
+                            <Link :href="route('request-leave.index')"
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                   <i class="fa-solid fa-person-walking-arrow-right"></i>
+                                </span>
+                                <span>Request Leave</span>
                             </Link>
                         </li>
 
@@ -70,12 +81,25 @@
                                 <span>Employee</span>
                             </Link>
                         </li>
+
+                        <li :class="{ active: $page.url.startsWith('/qrcode') }">
+                            <Link :href="route('qrcode')"
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </span>
+                                <span>QR Code</span>
+                            </Link>
+                        </li>
+                    </div>
+                    <!-- End Admin And CEO Role -->
+
+                    <!-- Admin Role -->
+                     <div v-if="role === 'admin'">
+
                      </div>
                     <!-- End Admin Role -->
 
-                    
-                   
-                    
                     <!-- Settings -->
                     <li>
                         <button @click="toggleSetdrop"
@@ -83,7 +107,7 @@
                             <span class="icon">
                                 <i class="fa-solid fa-gear"></i>
                             </span>
-                            <span>Settings</span>
+                            <span style="font-size: 17px;font-weight: 500;">Settings</span>
                             <i class="fa-solid fa-angle-down"
                                 :class="{ 'rotate': SetdropdownVisible, 'rotate-back': !SetdropdownVisible }"></i>
                         </button>
@@ -91,7 +115,7 @@
                     </li>
                     <div class="settings-dropdown" v-show="SetdropdownVisible">
                         <ul>
-                            <li :class="{ active: $page.url.startsWith('/account-information') }">
+                            <li  v-if="role === 'admin' || role === 'ceo'"  :class="{ active: $page.url.startsWith('/account-information') }">
                                 <Link :href="route('accountInformation')">
                                 Account Information
                                 </Link>
@@ -128,7 +152,7 @@
                         <transition name="fade">
                             <div class="dropdown" v-show="ProfiledropdownVisible">
                                 <ul>
-                                    <li>
+                                    <li v-if="role === 'admin' || role === 'ceo'">
                                         <!-- <router-link to="/edit-profile">Edit Profile</router-link> -->
                                         <Link :href="route('accountInformation')">
                                         Edit Profile
@@ -438,13 +462,17 @@ li button{
     justify-content: flex-start;
     flex-direction: column;
     position: absolute;
-
+    padding: 0 25px;
+    padding-bottom: 15px;
+    background-color: #F4F6FA;
+    border-radius: 10px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .25);
 }
 
 .profile-dropdown ul li {
     position: relative;
-    background-color: #F4F6FA;
-    top: 15px;
+
+    top: 10px;
     padding: 10px;
     width: 100%;
     display: flex;
@@ -454,6 +482,9 @@ li button{
 
 .profile-dropdown ul li a {
     font-size: 16px;
+    color: black;
+    text-decoration: none;
+    width: max-content;
 }
 
 .profile-dropdown ul li a:hover {
@@ -582,10 +613,10 @@ li button{
 </style>
 
 <script>
-import { Link, usePage } from "@inertiajs/vue3";
+import { Link, usePage, Head } from "@inertiajs/vue3";
 
 export default {
-    components: { Link },
+    components: { Link, Head },
     mounted() {
         const { user,role } = usePage().props;
         this.role = role;

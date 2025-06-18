@@ -29,14 +29,10 @@
                     <div class="btn-log">
                         <button>Login</button>
                     </div>
-                    <div class="create-account" style="">
-                        <label>Don't have account?</label>
-                        <router-link to="/signin">Create Account</router-link>
-                    </div>
                 </div>
 
             </div>
-            
+
         </div>
         <div class="logIn-image">
                 <img src="/login.webp" alt="login-image">

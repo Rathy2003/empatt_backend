@@ -5,7 +5,7 @@
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{form_data.id ? 'Edit User' : 'New User'}}</h1>
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{form_data.id ? (form_data.readonly ? 'View User' : 'Edit User') : 'New User'}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -15,21 +15,21 @@
                                     <div class="w-50">
                                         <div class="mb-3">
                                             <label for="fname" class="form-label">First Name</label>
-                                            <input type="text" v-model="form_data.firstname" class="form-control" :class="{'is-invalid':errors.firstname !== ''}" id="fname" placeholder="Enter First Name*">
+                                            <input type="text" v-model="form_data.firstname" :readonly="form_data.readonly" tabindex="1" class="form-control" :class="{'is-invalid':errors.firstname !== ''}" id="fname" placeholder="Enter First Name*">
                                             <div class="invalid-feedback">
                                                 {{errors.firstname}}
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email address</label>
-                                            <input type="email" v-model="form_data.email" class="form-control" :class="{'is-invalid':errors.email !== ''}" id="email" placeholder="Enter Email Address*">
+                                            <input type="email" :readonly="form_data.readonly" tabindex="3" v-model="form_data.email" class="form-control" :class="{'is-invalid':errors.email !== ''}" id="email" placeholder="Enter Email Address*">
                                             <div class="invalid-feedback">
                                                 {{errors.email}}
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="company" class="form-label">Company</label>
-                                            <select v-model="form_data.company_id" id="company" class="form-control" :class="{'is-invalid':errors.company_id !== ''}">
+                                            <select v-model="form_data.company_id"  tabindex="5" id="company" class="form-control" :class="{'is-invalid':errors.company_id !== ''}" :disabled="form_data.readonly">
                                                 <option value="" disabled>Choose Company</option>
                                                 <option :value="item.id" v-for="(item,index) in companies" :key="'company'+index">{{item.name}}</option>
                                             </select>
@@ -37,32 +37,44 @@
                                                 {{errors.company_id}}
                                             </div>
                                         </div>
-                                        <div class="mb-3">
+
+                                        <div v-if="!form_data.readonly" class="mb-3">
                                             <label for="password" class="form-label">Password</label>
-                                            <input type="password" v-model="form_data.password" class="form-control" :class="{'is-invalid':errors.password !== ''}" id="password" placeholder="Enter Password*">
+                                            <input type="password" v-model="form_data.password"  tabindex="7" class="form-control" :class="{'is-invalid':errors.password !== ''}" id="password" :placeholder="form_data.id ? 'Leave blank if you don\'t want to change password' : 'Enter Password*'">
                                             <div class="invalid-feedback">
                                                 {{errors.password}}
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="role" class="form-label">Role</label>
+                                            <select v-model="form_data.role" id="role" tabindex="9" class="form-control" :class="{'is-invalid':errors.role !== ''}" :disabled="form_data.readonly">
+                                                <option value="" disabled>Choose Role</option>
+                                                <option value="ceo">CEO</option>
+                                                <option value="admin">Admin</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                {{errors.role}}
                                             </div>
                                         </div>
                                     </div>
                                     <div class="w-50">
                                         <div class="mb-3">
                                             <label for="lname" class="form-label">Last Name</label>
-                                            <input type="text" v-model="form_data.lastname" class="form-control" :class="{'is-invalid':errors.lastname !== ''}" id="lname" placeholder="Enter Last Name*">
+                                            <input type="text" :readonly="form_data.readonly" v-model="form_data.lastname" tabindex="2" class="form-control" :class="{'is-invalid':errors.lastname !== ''}" id="lname" placeholder="Enter Last Name*">
                                             <div class="invalid-feedback">
                                                 {{errors.lastname}}
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="phone_number" class="form-label">Phone Number</label>
-                                            <input type="number" v-model="form_data.phone_number" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="Enter Phone Number*">
+                                            <input type="text" :readonly="form_data.readonly" tabindex="4" v-model="form_data.phone_number" @input="formatPhone" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="012 345 6789">
                                             <div class="invalid-feedback">
                                                 {{errors.phone_number}}
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="gender" class="form-label">Gender</label>
-                                            <select v-model="form_data.gender" id="gender" class="form-control" :class="{'is-invalid':errors.gender !== ''}">
+                                            <select v-model="form_data.gender" tabindex="6" id="gender" class="form-control" :class="{'is-invalid':errors.gender !== ''}" :disabled="form_data.readonly">
                                                 <option value="" disabled>Choose Gender</option>
                                                 <option value="Male">Male</option>
                                                 <option value="Female">Female</option>
@@ -71,25 +83,24 @@
                                                 {{errors.gender}}
                                             </div>
                                         </div>
-                                        <div class="mb-3">
+                                        <div v-if="!form_data.readonly" class="mb-3">
                                             <label for="cf_password" class="form-label">Confirm Password</label>
-                                            <input type="password" v-model="form_data.confirm_password" class="form-control" :class="{'is-invalid':errors.confirm_password !== ''}" id="cf_password" placeholder="Enter Confirm Password*">
+                                            <input type="password" tabindex="8" v-model="form_data.confirm_password" class="form-control" :class="{'is-invalid':errors.confirm_password !== ''}" id="cf_password" :placeholder="form_data.id ? 'Leave blank if you don\'t want to change password' : 'Enter Confirm Password*'">
                                             <div class="invalid-feedback">
                                                 {{errors.confirm_password}}
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="mb-3">
-                                        <label for="role" class="form-label">Role</label>
-                                        <select v-model="form_data.role" id="role" class="form-control" :class="{'is-invalid':errors.role !== ''}">
-                                            <option value="" disabled>Choose Role</option>
-                                            <option value="ceo">CEO</option>
-                                            <option value="admin">Admin</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            {{errors.role}}
+
+                                        <div class="mb-3">
+                                            <label for="status" class="form-label">Status</label>
+                                            <select v-model="form_data.status" tabindex="10" id="status" class="form-control" :class="{'is-invalid':errors.status !== ''}" :disabled="form_data.readonly">
+                                                <option value="" disabled>Choose Status</option>
+                                                <option value="active">Active</option>
+                                                <option value="inactive">Inactive</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                {{errors.status}}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -100,8 +111,10 @@
                                         <img v-if="form_data.old_photo" :src="'/images/users/'+form_data.old_photo" id="logo-preview" alt="">
                                         <img v-else src="@/assets/No-Image-Placeholder.svg.png" id="logo-preview" alt="">
                                     </div>
-                                    <label for="logo" class="form-label">Profile</label>
+                                    <label v-if="!form_data.readonly" for="logo" class="form-label">Profile</label>
                                     <input
+                                        v-show="!form_data.readonly"
+                                        tabindex="11"
                                         type="file"
                                         class="form-control"
                                         id="logo"
@@ -113,10 +126,10 @@
 
                         </form>
                     </div>
-                    <div class="modal-footer">
+                    <div v-if="!form_data.readonly" class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button v-if="!form_data.id" @click="save" type="button" class="btn btn-primary">Save</button>
-                        <button v-else @click="saveEdit" type="button" class="btn btn-primary">Save</button>
+                        <button tabindex="12" v-else @click="saveEdit" type="button" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </div>
@@ -159,6 +172,15 @@
                 </div>
                 <button class="primary-button" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;New User</button>
             </div>
+            <!-- success message alert-->
+            <div class="alert alert-success alert-dismissible fade show mb-0" role="alert" v-if="success.show">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>{{success.message}}</span>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <!-- success message alert-->
             <div class="table-container" v-if="users.data.length > 0">
                 <table>
                     <thead>
@@ -167,9 +189,9 @@
                         <th>Photo</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Phone Number</th>
                         <th>Company</th>
                         <th>Role</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -185,15 +207,20 @@
                         </td>
                         <td>{{item.firstname+" "+item.lastname}}</td>
                         <td>{{item.email}}</td>
-                        <td>{{item.phone_number}}</td>
                         <td>{{item.company.name}}</td>
-                        <td>{{item.role}}</td>
+                        <td class="text-uppercase">{{item.roles[0].name}}</td>
+                        <td>
+                            <span :class="item.status == 'active' ? 'status-badge-success' : 'status-badge-danger'"></span>
+                        </td>
                         <td>
                             <button @click="onDelete(item)" class="btn btn-outline-danger">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
-                            <button @click="onEdit(item)" class="btn btn-outline-primary mx-2">
+                            <button @click="onEdit(item)" class="btn btn-outline-success mx-2">
                                 <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button @click="onView(item)" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                     </tr>
@@ -246,7 +273,12 @@ export default{
     },
     data(){
         return{
+            success:{
+                show:false,
+                message:""
+            },
             form_data:useForm({
+                readonly:false,
                 id:null,
                 firstname:"",
                 lastname:"",
@@ -256,6 +288,7 @@ export default{
                 company_id:"",
                 role:"",
                 photo:null,
+                status:"active",
                 old_photo:null,
                 password:"",
                 confirm_password:"",
@@ -268,6 +301,7 @@ export default{
                 gender:"",
                 company_id:"",
                 role:"",
+                status:"",
                 password:"",
                 confirm_password:"",
             },
@@ -297,6 +331,12 @@ export default{
                 onSuccess:function(data){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    vm.success.show = true;
+                    vm.success.message = "User created successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -319,6 +359,12 @@ export default{
                 onSuccess:function(data){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    vm.success.show = true;
+                    vm.success.message = "User updated successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -330,6 +376,21 @@ export default{
             })
             $.LoadingOverlay("hide");
         },
+        onView(item){
+            this.form_data.readonly = true;
+            this.form_data.id = item.id;
+            this.form_data.firstname = item.firstname;
+            this.form_data.lastname = item.lastname;
+            this.form_data.email = item.email;
+            this.form_data.phone_number = item.phone_number;
+            this.form_data.gender = item.gender;
+            this.form_data.role = item.roles[0].name;
+            this.form_data.company_id = item.company_id;
+            this.form_data.old_photo = item.photo;
+            this.form_data.status = item.status;
+            
+            $("#staticBackdrop").modal('show');
+        },
         onEdit(item){
             this.form_data.id = item.id;
             this.form_data.firstname = item.firstname;
@@ -337,10 +398,11 @@ export default{
             this.form_data.email = item.email;
             this.form_data.phone_number = item.phone_number;
             this.form_data.gender = item.gender;
-            this.form_data.role = item.role;
+            this.form_data.role = item.roles[0].name;
             this.form_data.company_id = item.company_id;
             this.form_data.old_photo = item.photo;
-
+            this.form_data.status = item.status;
+            
             $("#staticBackdrop").modal('show');
         },
         onDelete(item){
@@ -353,9 +415,18 @@ export default{
                 background:"rgb(0 0 0 / 35%)",
                 imageColor:"#ffffff"
             });
+            let vm = this;
             let form = useForm({id:this.form_data.id})
             form.post(route('deleteUser'),{
-                onSuccess:()=> $("#deleteModal").modal('hide'),
+                onSuccess:()=> {
+                    $("#deleteModal").modal('hide');
+                    vm.success.show = true;
+                    vm.success.message = "User deleted successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
+                },
                 onError:(err) =>{
                     console.log(err)
                 }
@@ -380,30 +451,48 @@ export default{
             this.errors.confirm_password = "";
         },
         clearForms(){
-            this.form_data.id = null;
-            this.form_data.firstname = "";
-            this.form_data.lastname = "";
-            this.form_data.email = "";
-            this.form_data.phone_number = "";
-            this.form_data.photo = null;
-            this.form_data.old_photo = null;
-            this.form_data.company_id = "";
-            this.form_data.password = "";
-            this.form_data.confirm_password = "";
-            this.form_data.gender = "";
-            this.form_data.role = "";
+            this.form_data.reset();
         },
         goToPage(url) {
             router.visit(url, {
                 preserveScroll: true,
                 preserveState: true,
             })
+        },
+        formatPhone() {
+            let digits = this.form_data.phone_number.replace(/\D/g, '');
+            if (digits.length > 0 && digits[0] !== '0') {
+                digits = '0' + digits;
+            }
+            digits = digits.substring(0, 10);
+
+            if (digits.length <= 3) {
+                this.form_data.phone_number = digits;
+            } else if (digits.length <= 6) {
+                this.form_data.phone_number = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+            } else {
+                this.form_data.phone_number = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+            }
         }
     }
 }
 </script>
 
 <style>
+.status-badge-success{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: seagreen;
+}
+.status-badge-danger{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #FF0000;
+}
 .company-logo{
     & img{
         width: 64px;

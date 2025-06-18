@@ -26,6 +26,8 @@ include 'admin/authentication.php';
 include 'admin/dashboard.php';
 include 'admin/employee.php';
 include 'admin/position.php';
+include 'admin/qrcode.php';
+include 'admin/request_leave.php';
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');

@@ -16,12 +16,11 @@ class UserController extends Controller
     public function showUser(Request $request)
     {
 
-        $users = User::with(['company:id,name'])->where('id', '!=', 1)->latest()->paginate(8);
+        $users = User::with(['company:id,name','roles:id,name'])->where('id', '!=', 1)->role(['admin','ceo'])->latest()->paginate(8);
         $search = $request->query('search');
         $companies = Company::all();
         if($search){
-
-            $users = User::with(['company:id,name'])
+            $users = User::with(['company:id,name','roles:id,name'])
                 ->where('id', '!=', 1)
                 ->when($search, function ($query, $search) {
                     $query->where(function ($q) use ($search) {
@@ -46,10 +45,11 @@ class UserController extends Controller
             'firstname'=>'required|string',
             'lastname'=>'required|string',
             'email'=>'required|email|unique:users,email',
-            'phone_number'=>'required|numeric|unique:users,phone_number',
+            'phone_number'=>'required|string|unique:users,phone_number',
             'company_id'=>'required|numeric|exists:company,id',
             'gender' => 'required|string',
             'password' => 'required|min:8',
+            'status' => 'required|string:active,inactive',
             'confirm_password' => 'required|same:password',
             'role' => 'required|string'
         ]);
@@ -61,7 +61,13 @@ class UserController extends Controller
             $request->photo->move(public_path('images/users'), $filename);
         }
 
-        $data = $request->only(['firstname','lastname','email','phone_number','company_id','gender','password','role']);
+        // allowed role
+        $allowed_roles = ['ceo','admin','employee'];
+        if(!in_array($request->role, $allowed_roles)){
+            return redirect()->back()->with('error','Invalid role');
+        }
+
+        $data = $request->only(['firstname','lastname','email','phone_number','company_id','gender','password','role','status']);
         $user = new User();
         $user->firstname = $data['firstname'];
         $user->lastname = $data['lastname'];
@@ -69,8 +75,8 @@ class UserController extends Controller
         $user->phone_number = $data['phone_number'];
         $user->company_id = $data['company_id'];
         $user->gender = $data['gender'];
+        $user->status = $data['status'];
         $user->password = Hash::make($data['password']);
-        $user->role = $data['role'];
         if($filename){
             $user->photo = $filename;
         }
@@ -95,11 +101,18 @@ class UserController extends Controller
                     ->ignore($request->id),
             ],
             'email'=>'required|email|unique:users,email,'.$request->id,
-            'phone_number'=>'required|numeric|unique:users,phone_number,'.$request->id,
+            'phone_number'=>'required|string|unique:users,phone_number,'.$request->id,
             'company_id'=>'required|numeric|exists:company,id',
             'gender' => 'required|string',
-            'role' => 'required|string'
+            'role' => 'required|string',
+            'status' => 'required|string:active,inactive',
         ]);
+
+        // allowed role
+        $allowed_roles = ['ceo','admin','employee'];
+        if(!in_array($request->role, $allowed_roles)){
+            return redirect()->back()->with('error','Invalid role');
+        }
 
         $old_photo = $request->old_photo;
 
@@ -112,12 +125,14 @@ class UserController extends Controller
             $request->photo->move(public_path('images/users'), $old_photo);
         }
 
-        $data = $request->only(['firstname','lastname','email','phone_number','company_id','gender','role']);
+        $data = $request->only(['firstname','lastname','email','phone_number','company_id','gender','role','status']);
         $user = User::find($request->id);
         if($old_photo){
             $user->photo = $old_photo;
         }
         $user->update($data);
+        $user->syncRoles([$data['role']]);
+
         return redirect()->back()->with('success','Photo has been updated');
     }
 

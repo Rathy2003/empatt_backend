@@ -20,14 +20,14 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email address</label>
-                                        <input type="email" v-model="form_data.email" class="form-control" :class="{'is-invalid':errors.email !== ''}" id="email" placeholder="Enter Email Address*">
+                                        <input type="email" v-model="form_data.email" class="form-control" :class="{'is-invalid':errors.email !== ''}" id="email" placeholder="Leave blank if you don't want to add email">
                                         <div class="invalid-feedback">
                                             {{errors.email}}
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="phone_number" class="form-label">Phone Number</label>
-                                        <input type="text" v-model="form_data.phone_number" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="Enter Phone Number*">
+                                        <input type="text" v-model="form_data.phone_number" class="form-control" :class="{'is-invalid':errors.phone_number !== ''}"  id="phone_number" placeholder="Leave blank if you don't want to add phone number">
                                         <div class="invalid-feedback">
                                             {{errors.phone_number}}
                                         </div>
@@ -100,6 +100,15 @@
                 </div>
                 <button class="primary-button" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;New Company</button>
             </div>
+            <!-- success message alert-->
+            <div class="alert alert-success alert-dismissible fade show mb-0" role="alert" v-if="success.show">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{success.message}}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <!-- end success message alert-->
             <div class="table-container" v-if="companies.data.length > 0">
                 <table>
                     <thead>
@@ -123,8 +132,8 @@
                             </div>
                         </td>
                         <td>{{item.name}}</td>
-                        <td>{{item.email}}</td>
-                        <td>{{item.phone_number}}</td>
+                        <td :class="{'text-muted':!item.email}">{{item.email ? item.email : '(null)'}}</td>
+                        <td :class="{'text-muted':!item.phone_number}">{{item.phone_number ? item.phone_number : '(null)'}}</td>
                         <td>
                             <button @click="onDelete(item)" class="btn btn-outline-danger">
                                 <i class="fa-solid fa-trash"></i>
@@ -182,6 +191,10 @@ export default{
     },
     data(){
         return{
+            success:{
+                show:false,
+                message:""
+            },
             form_data:useForm({
                 id:null,
                 name:"",
@@ -222,6 +235,12 @@ export default{
                 onSuccess:function(data){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    vm.success.show = true;
+                    vm.success.message = "Company created successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -244,6 +263,12 @@ export default{
                 onSuccess:function(data){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    vm.success.show = true;
+                    vm.success.message = "Company updated successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -273,9 +298,18 @@ export default{
                 background:"rgb(0 0 0 / 35%)",
                 imageColor:"#ffffff"
             });
+            let vm = this;
             let form = useForm({id:this.form_data.id})
             form.post(route('deleteCompany'),{
-                onSuccess:()=> $("#deleteModal").modal('hide'),
+                onSuccess:()=> {
+                    $("#deleteModal").modal('hide');
+                    vm.success.show = true;
+                    vm.success.message = "Company deleted successfully";
+                    setTimeout(() => {
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    }, 3000);
+                },
                 onError:(err) =>{
                     console.log(err)
                 }

@@ -1,9 +1,6 @@
 <template>
-
     <Head title="Reset Password" />
     <div class="form-container">
-
-        <!-- Left Panel: Form -->
         <div class="form-panel">
             <div>
                 <div class="form-header">
@@ -35,7 +32,7 @@
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input @keyup="clearErrors" v-model="form.email" type="email" id="email" placeholder="Enter your email">
-                       
+
                     </div>
 
                     <button @click="sendResetCode" type="button" class="btn">
@@ -55,7 +52,7 @@
                     </div>
                     <div class="form-group d-flex justify-content-between">
                         <span>Remaining time: <span class="text-primary">0:{{remainingTime.toString().padStart(2, '0')}}s</span></span>
-                        <span>Didn't receive the code? <a href="javascript:void(0)" @click="sendResetCode" :class="{'disabled': remainingTime > 0}">Resend Code</a></span>    
+                        <span>Didn't receive the code? <a href="javascript:void(0)" @click="sendResetCode" :class="{'disabled': remainingTime > 0}">Resend Code</a></span>
                     </div>
                     <button @click="verifyResetCode" type="button" class="btn">
                         Confirm
@@ -82,7 +79,6 @@
         <div class="illustration-panel">
             <img src="/reset-password.png" alt="Forgot password illustration">
         </div>
-
     </div>
 
 </template>
@@ -150,7 +146,7 @@ export default {
                     $.LoadingOverlay("hide");
                 }
             })
-          
+
         },
         verifyResetCode(){
             $.LoadingOverlay("show");
@@ -198,7 +194,7 @@ export default {
                 },
                 onError: (e) => {
                     console.log(e);
-                    
+
                     if(e.password && e.confirm_password){
                         if(this.form.password == "" && this.form.confirm_password == ""){
                             this.error.message = "Password and confirm password are required.";

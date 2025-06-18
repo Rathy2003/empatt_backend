@@ -18,6 +18,7 @@
             </div>
         </div>
         <!-- End QRCode Preview -->
+
         <!-- Add and Edit QRCode Modal-->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -26,9 +27,9 @@
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">{{form_data.id ? 'Edit QRCode' : 'New QRCode'}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="padding-top: 55px;padding-bottom: 55px;">
                         <form class="d-flex gap-5">
-                            <div style="width: 40%;">
+                            <div style="width: 50%;">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">QRCode Name</label>
                                     <input type="text" v-model="form_data.name" class="form-control" :class="{'is-invalid':errors.name !== ''}" id="name" placeholder="Enter QRCode Name*">
@@ -36,23 +37,37 @@
                                         {{errors.name}}
                                     </div>
                                 </div>
+
                                 <div class="mb-3">
-                                    <div @click="openMap" id="choose-map-wrapper">
-                                        <i class="fa-solid fa-map-location"></i>
+                                    <label for="checkin_time" class="form-label">Checkin Time</label>
+                                    <TimerPicker ref="checkin_ref" @change-time="onChangeCheckInTime"/>
+                                    <div class="invalid-feedback">
+                                        {{errors.checkin_time}}
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="checkout_time" class="form-label">Checkout Time</label>
+                                    <TimerPicker ref="checkout_ref" @change-time="onChangeCheckOutTime"/>
+                                    <div class="invalid-feedback">
+                                        {{errors.checkout_time}}
+                                    </div>
+                                </div>
+                                <div v-if="googleMapsEmbedUrl" class="mb-3 text-center mt-5" >
+                                    <button type="button" @click="openMap" class="btn btn-outline-primary">Change Location</button>
+                                </div>
                             </div>
-                            <div style="width: 60%;position: relative">
-                                <label class="form-label">Location Preview</label>
-                                <iframe v-if="googleMapsEmbedUrl"
-                                        :src="googleMapsEmbedUrl"
-                                        style="border:0;width: 100%;height: 90%"
-                                        allowfullscreen=""
-                                        loading="lazy"
-                                >
+                            <div class="d-flex justify-content-center align-items-center flex-column gap-4" style="width: 50%;position: relative">
+                                <button v-if="!googleMapsEmbedUrl" type="button" @click="openMap" class="btn btn-outline-primary">{{form_data.latitude && form_data.longitude ? 'Change Location' : 'Choose Location'}}</button>
+                                <div v-if="googleMapsEmbedUrl">
+                                    <iframe v-if="googleMapsEmbedUrl"
+                                            :src="googleMapsEmbedUrl"
+                                            style="border:0;width: 500px;height: 310px"
+                                            allowfullscreen=""
+                                            loading="lazy"
+                                    >
 
-                                </iframe>
-                                <span v-else id="no-map-preview-msg">No Map Preview</span>
+                                    </iframe>
+                                </div>
                             </div>
 
                         </form>
@@ -111,6 +126,17 @@
                     <button @click="getCurrentLocation" class="btn btn-primary">Use My Location</button>
                 </div>
             </div>
+
+            <!-- success message alert-->
+            <div class="alert alert-success alert-dismissible fade show mb-0" role="alert" v-if="success.show">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{success.message}}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <!-- success message alert-->
+
             <div class="table-container" v-if="qrcode.data.length > 0">
                 <table>
                     <thead>
@@ -167,12 +193,13 @@
 </template>
 
 <script>
+import TimerPicker from "@/Components/TimerPicker.vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
 import {router, useForm} from "@inertiajs/vue3";
 import QRCode from "qrcode";
 
 export default{
-    components: {MainLayout},
+    components: {MainLayout, TimerPicker},
     props: {
         qrcode:Object,
         filters: Object,
@@ -183,6 +210,8 @@ export default{
         $("#staticBackdrop").on("hide.bs.modal", function(){
             vm.clearForms()
             vm.clearErrors()
+            vm.$refs.checkin_ref.clearTime()
+            vm.$refs.checkout_ref.clearTime()
         })
 
         $("#deleteModal").on("hide.bs.modal", function(){
@@ -191,12 +220,28 @@ export default{
     },
     data(){
         return{
+            success:{
+                show: false,
+                message: "",
+            },
             form_data:useForm({
                 id:null,
                 name:"",
-                company_id:null,
+                checkin:"",
+                checkout:"",
+                checkin_time:{
+                    hour:"",
+                    minute:"",
+                    am_pm:"",
+                },
+                checkout_time:{
+                    hour:"",
+                    minute:"",
+                    am_pm:"",
+                },
                 latitude: null,
                 longitude: null,
+                embed_url:null,
             }),
             errors:{
                 name:"",
@@ -240,7 +285,22 @@ export default{
                 }
             });
         },
-
+        onChangeCheckInTime(time){
+            let hour = time.hour;
+            let minute = time.minute;
+            let am_pm = time.am_pm;
+            this.form_data.checkin_time.hour = hour;
+            this.form_data.checkin_time.minute = minute;
+            this.form_data.checkin_time.am_pm = am_pm;
+        },
+        onChangeCheckOutTime(time){
+            let hour = time.hour;
+            let minute = time.minute;
+            let am_pm = time.am_pm;
+            this.form_data.checkout_time.hour = hour;
+            this.form_data.checkout_time.minute = minute;
+            this.form_data.checkout_time.am_pm = am_pm;
+        },
         initMap() {
             const defaultLocation = { lat: -6.2, lng: 106.8 };
 
@@ -251,31 +311,42 @@ export default{
 
             this.addMapClickListener();
         },
+        handleSelectedLocation(lat, lng) {
+            const clickedLocation = { lat, lng };
+
+            this.form_data.latitude = lat;
+            this.form_data.longitude = lng;
+
+            if (this.marker) {
+                this.marker.setPosition(clickedLocation);
+            } else {
+                this.marker = new google.maps.Marker({
+                    position: clickedLocation,
+                    map: this.map,
+                });
+            }
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: clickedLocation }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    this.address = results[0].formatted_address;
+                    this.googleMapsEmbedUrl = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+                    this.form_data.embed_url = this.googleMapsEmbedUrl;
+                } else {
+                    this.address = "Address not found";
+                    this.googleMapsEmbedUrl = null;
+                }
+            });
+
+            // Optional: Center map if needed
+            this.map.setCenter(clickedLocation);
+            this.map.setZoom(15);
+        },
         addMapClickListener() {
             this.mapClickListener = this.map.addListener("click", (event) => {
-                const clickedLocation = event.latLng;
-                this.form_data.latitude = clickedLocation.lat();
-                this.form_data.longitude = clickedLocation.lng();
-
-                if (this.marker) {
-                    this.marker.setPosition(clickedLocation);
-                } else {
-                    this.marker = new google.maps.Marker({
-                        position: clickedLocation,
-                        map: this.map,
-                    });
-                }
-
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: clickedLocation }, (results, status) => {
-                    if (status === "OK" && results[0]) {
-                        this.address = results[0].formatted_address;
-                        this.googleMapsEmbedUrl = `https://maps.google.com/maps?q=${this.form_data.latitude},${this.form_data.longitude}&z=15&output=embed`;
-                    } else {
-                        this.address = "Address not found";
-                        this.googleMapsEmbedUrl = null;
-                    }
-                });
+                const lat = event.latLng.lat();
+                const lng = event.latLng.lng();
+                this.handleSelectedLocation(lat, lng);
             });
         },
         closeMap() {
@@ -287,33 +358,44 @@ export default{
         },
         getCurrentLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
+                const watchId = navigator.geolocation.watchPosition(
                     (position) => {
-                        const userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                        };
+                        const accuracy = position.coords.accuracy;
+                        console.log("Accuracy:", accuracy + " meters");
+                        if (accuracy <= 150) {
+                            const userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                            };
 
-                        this.latitude = userLocation.lat;
-                        this.longitude = userLocation.lng;
+                            this.latitude = parseFloat(position.coords.latitude.toFixed(6));
+                            this.longitude = parseFloat(position.coords.longitude.toFixed(6));
+                            this.handleSelectedLocation(this.latitude, this.longitude);
 
-                        // Center map
-                        this.map.setCenter(userLocation);
-                        this.map.setZoom(15);
+                            this.map.setCenter(userLocation);
+                            this.map.setZoom(15);
 
-                        // Place or move marker
-                        if (this.marker) {
-                            this.marker.setPosition(userLocation);
-                        } else {
-                            this.marker = new google.maps.Marker({
-                                position: userLocation,
-                                map: this.map,
-                            });
+                            if (this.marker) {
+                                this.marker.setPosition(userLocation);
+                            } else {
+                                this.marker = new google.maps.Marker({
+                                    position: userLocation,
+                                    map: this.map,
+                                });
+                            }
+
+                            // Stop watching once we get a good reading
+                            navigator.geolocation.clearWatch(watchId);
                         }
                     },
                     (error) => {
                         alert("Could not get your location. Please allow location access.");
                         console.error("Geolocation error:", error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
                     }
                 );
             } else {
@@ -331,13 +413,16 @@ export default{
             }, 300)
         },
         save(){
+            this.form_data.checkout = this.form_data.checkout_time.hour + ":" + this.form_data.checkout_time.minute + " " + this.form_data.checkout_time.am_pm;
+            this.form_data.checkin = this.form_data.checkin_time.hour + ":" +this.form_data.checkin_time.minute+" "+this.form_data.checkin_time.am_pm;
+            this.form_data.embed_url = this.googleMapsEmbedUrl;
             let vm = this;
             this.clearErrors()
-            this.form_data.company_id = this.company_id
             this.form_data.post(route('createQRCode'),{
                 onSuccess:async function(){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    console.log(vm.qrcode.data);
                     let token = vm.qrcode.data[0].token
                     let id = vm.qrcode.data[0].id;
                     await QRCode.toDataURL(token, {
@@ -354,6 +439,12 @@ export default{
                         formData.post(route('saveQRCodeImage'),{
                             onSuccess:()=>{
                                 $("#staticBackdrop").modal('hide');
+                                vm.success.show = true;
+                                vm.success.message = "QRCode create successfully.";
+                                setTimeout(()=>{
+                                    vm.success.show = false;
+                                    vm.success.message = "";
+                                },3000)
                             }
                         })
                     })
@@ -368,12 +459,45 @@ export default{
             })
         },
         saveEdit(){
+            this.form_data.checkout = this.form_data.checkout_time.hour + ":" + this.form_data.checkout_time.minute + " " + this.form_data.checkout_time.am_pm;
+            this.form_data.checkin = this.form_data.checkin_time.hour + ":" +this.form_data.checkin_time.minute+" "+this.form_data.checkin_time.am_pm;
+            this.form_data.embed_url = this.googleMapsEmbedUrl;
             let vm = this;
             this.clearErrors()
-            this.form_data.post(route('saveUser'),{
-                onSuccess:function(data){
+            this.form_data.post(route('updateQRCode'),{
+                onSuccess:async function (data) {
+                    let item = data.props.qrcode.data[data.props.qrcode.data.length - 1]
+                    let id = item.id;
+                    let token = item.token;
+                    let image = item.image;
+
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
+                    await QRCode.toDataURL(token, {
+                        width: 200,
+                        margin: 2,
+                    }).then(async response => {
+                        const res = await fetch(response);
+                        const blob = await res.blob();
+                        let file = new File([blob], "qrcode.png", {type: blob.type});
+                        let formData = useForm({
+                            old_image:image,
+                            id: id,
+                            image: file
+                        });
+                        formData.post(route('saveQRCodeImage'), {
+                            onSuccess: () => {
+                                $("#staticBackdrop").modal('hide');
+                                vm.clearForms()
+                                vm.success.show = true;
+                                vm.success.message = "QRCode updated successfully.";
+                                setTimeout(()=>{
+                                    vm.success.show = false;
+                                    vm.success.message = "";
+                                },3000)
+                            }
+                        })
+                    })
                 },
                 onError:(err) =>{
                     const keys = Object.keys(err);
@@ -386,25 +510,55 @@ export default{
         },
         onEdit(item){
             this.form_data.id = item.id;
-            this.form_data.firstname = item.firstname;
-            this.form_data.lastname = item.lastname;
-            this.form_data.email = item.email;
-            this.form_data.phone_number = item.phone_number;
-            this.form_data.gender = item.gender;
-            this.form_data.role = item.role;
-            this.form_data.company_id = item.company_id;
-            this.form_data.old_photo = item.photo;
+            this.form_data.name = item.name;
 
+            // split checkin time
+            var {hour,minute,am_pm} = this.splitTime(item.checkin_time);
+            this.form_data.checkin_time.hour = hour;
+            this.form_data.checkin_time.minute = minute;
+            this.form_data.checkin_time.am_pm = am_pm;
+            // set time to timepicker
+            this.$refs.checkin_ref.setTime(hour,minute,am_pm);
+
+            // split checkout time
+            var {hour,minute,am_pm}=this.splitTime(item.checkout_time);
+            this.form_data.checkout_time.hour = hour;
+            this.form_data.checkout_time.minute = minute;
+            this.form_data.checkout_time.am_pm = am_pm;
+            // set time to timepicker
+            this.$refs.checkout_ref.setTime(hour,minute,am_pm);
+            this.form_data.embed_url = item.embed_url;
+            this.googleMapsEmbedUrl = item.embed_url;
+            this.form_data.latitude = item.latitude;
+            this.form_data.longitude = item.longitude;
             $("#staticBackdrop").modal('show');
+        },
+        splitTime(time){
+            let tmp = time.split(' ')
+            let am_pm = tmp[1];
+            let temp_time = tmp[0].split(':');
+            let hour = temp_time[0];
+            let minute = temp_time[1];
+            return {hour:hour,minute:minute,am_pm:am_pm};
         },
         onDelete(item){
             this.form_data.id = item.id;
             $("#deleteModal").modal('show');
         },
         onCfDelete(){
+            let vm = this
             let form = useForm({id:this.form_data.id})
             form.post(route('deleteQRCode'),{
-                onSuccess:()=> $("#deleteModal").modal('hide'),
+                onSuccess:()=> {
+                    console.log("delete")
+                    $("#deleteModal").modal('hide')
+                    vm.success.show = true;
+                    vm.success.message = "QRCode delete successfully.";
+                    setTimeout(()=>{
+                        vm.success.show = false;
+                        vm.success.message = "";
+                    },3000)
+                },
                 onError:(err) =>{
                     console.log(err)
                 }
@@ -420,6 +574,8 @@ export default{
         clearForms(){
             this.form_data.id = null;
             this.form_data.name = "";
+            this.form_data.old_embed_url = null;
+            this.form_data.embed_url = null;
             this.form_data.latitude = null;
             this.form_data.longitude = null;
             this.googleMapsEmbedUrl = null

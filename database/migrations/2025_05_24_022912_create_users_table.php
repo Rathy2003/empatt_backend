@@ -28,8 +28,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('photo')->nullable();
             $table->date('hire_date')->nullable();
-            $table->enum('role', ['owner','admin', 'manager','employee'])->default('employee');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->decimal('salary', 10, 2)->nullable()->default(0);
             $table->bigInteger('position_id')->unsigned()->nullable();
             $table->foreign('position_id')
                 ->references('id')
