@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Company;
+use App\Models\Position;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,30 +18,51 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // developer user
+        $devUser = new User();
+        $devUser->firstname = "Developer";
+        $devUser->lastname = "Developer";
+        $devUser->email = "developer123@gmail.com";
+        $devUser->gender = "Male";
+        $devUser->phone_number = "0965051014";
+        $devUser->address = "Takev";
+        $devUser->position_id = null;
+        $devUser->password = Hash::make('developer@123');
+        $devUser->save();
 
-//        User::factory()->create([
-//            'name' => 'Test User',
-//            'email' => 'test@example.com',
-//        ]);
-
-        $user = new User();
-        $user->firstname = "Developer";
-        $user->lastname = "Developer";
-        $user->email = "developer123@gmail.com";
-        $user->gender = "Male";
-        $user->phone_number = "0965051014";
-        $user->address = "Takev";
-        $user->position_id = null;
-        $user->password = Hash::make('developer@123');
-        $user->save();
 
         Company::create([
-           "name" => "Space X",
-           "email" => "spacex168@gmail.com",
-           "phone_number" => "0123456789",
+           "name" => "Electronic.INC Cambodia",
+           "email" => "electronic.inc.kh@gmail.com",
+           "phone_number" => "012 345 6789",
         ]);
 
+        // ceo user
+        $ceoUser = new User();
+        $ceoUser->firstname = "Sok";
+        $ceoUser->lastname = "Dara";
+        $ceoUser->email = "sokdara@gmail.com";
+        $ceoUser->gender = "Male";
+        $ceoUser->phone_number = "011 345 6789";
+        $ceoUser->address = "Steng Meanchey, Phnom Penh";
+        $ceoUser->position_id = null;
+        $ceoUser->password = Hash::make('12345678');
+        $ceoUser->company_id = 1;
+        $ceoUser->save();
+
+        // position
+        Position::create([
+            "name" => "IT Manager",
+            "company_id" => 1
+        ]);
+        Position::create([
+            "name" => "Engineer",
+            "company_id" => 1
+        ]);
+        Position::create([
+            "name" => "Accountant",
+            "company_id" => 1
+        ]);
 
         $developer = Role::create(['name' => 'developer']);
         $ceo = Role::create(['name' => 'ceo']);
@@ -60,7 +82,7 @@ class DatabaseSeeder extends Seeder
         $admin->givePermissionTo($manageEmployee);
         $admin->givePermissionTo($manageQrCode);
 
-        $user = User::find(1);
-        $user->assignRole($developer);
+        $devUser->assignRole($developer);
+        $ceoUser->assignRole($ceo);
     }
 }

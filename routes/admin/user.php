@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 
@@ -12,6 +13,11 @@ Route::group(['middleware' => ['role:developer']], function () {
 
 
 Route::group(['middleware' => ['role:admin|ceo']], function () {
+    Route::get('/notifications/count', [UserController::class, 'getNotificationCount'])->name('getNotificationCount');
+    Route::get('/notifications', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return auth()->user()->unreadNotifications;
+    })->name('getAllNotifications');
     Route::get('/account-information',[ProfileController::class,'showAccountInformation'])->name('accountInformation');
     Route::post('/account-information/save',[ProfileController::class,'saveInformation'])->name('saveInformation');
 });

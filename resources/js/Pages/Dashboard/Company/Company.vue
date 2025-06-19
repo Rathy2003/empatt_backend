@@ -237,6 +237,7 @@ export default{
                     vm.clearForms();
                     vm.success.show = true;
                     vm.success.message = "Company created successfully";
+                    $.LoadingOverlay("hide");
                     setTimeout(() => {
                         vm.success.show = false;
                         vm.success.message = "";
@@ -248,9 +249,10 @@ export default{
                         this.errors[key] = err[key];
                     })
                     console.log(this.errors);
+                    $.LoadingOverlay("hide");
                 }
             })
-            $.LoadingOverlay("hide");
+
         },
         saveEdit(){
             $.LoadingOverlay("show",{
@@ -265,6 +267,7 @@ export default{
                     vm.clearForms();
                     vm.success.show = true;
                     vm.success.message = "Company updated successfully";
+                    $.LoadingOverlay("hide");
                     setTimeout(() => {
                         vm.success.show = false;
                         vm.success.message = "";
@@ -276,9 +279,9 @@ export default{
                         this.errors[key] = err[key];
                     })
                     console.log(this.errors);
+                    $.LoadingOverlay("hide");
                 }
             })
-            $.LoadingOverlay("hide");
         },
         onEdit(item){
           this.form_data.id = item.id;
@@ -305,16 +308,17 @@ export default{
                     $("#deleteModal").modal('hide');
                     vm.success.show = true;
                     vm.success.message = "Company deleted successfully";
+                    $.LoadingOverlay("hide");
                     setTimeout(() => {
                         vm.success.show = false;
                         vm.success.message = "";
                     }, 3000);
                 },
                 onError:(err) =>{
+                    $.LoadingOverlay("hide");
                     console.log(err)
                 }
             })
-            $.LoadingOverlay("hide");
         },
         onChangeFile(evt){
           let file = evt.target.files[0];

@@ -5,16 +5,6 @@
             <div class="dashboard-item">
                 <div class="title">
                     <span>
-                        Statistics
-                    </span>
-                </div>
-                <div class="content">
-                    <canvas ref="statisticsChart"></canvas>
-                </div>
-            </div>
-            <div class="dashboard-item">
-                <div class="title">
-                    <span>
                         Attendance
                     </span>
                 </div>
@@ -22,79 +12,40 @@
                     <div class="attendance-container">
                         <div class="attendance-item">
                             <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
+                                <div class="icon-container p-4  d-flex justify-content-center align-items-center">
+                                    <i style="font-size: 25px" class="fa-solid fa-clock"></i>
                                 </div>
                                 <div class="attendance-title">
-                                    <span>Checked it</span>
+                                    <span>Checked In</span>
                                 </div>
                                 <div class="attendance-value">
-                                    <span>5000</span>
+                                    <span>{{summary.checkedIn}}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="attendance-item">
                             <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
-                                </div>
-                                <div class="attendance-title">
-                                    <span>Not Checked In</span>
-                                </div>
-                                <div class="attendance-value">
-                                    <span>5000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="attendance-item">
-                            <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
+                                <div class="icon-container p-4  d-flex justify-content-center align-items-center">
+                                    <i style="font-size: 25px" class="fa-solid fa-comment-dots"></i>
                                 </div>
                                 <div class="attendance-title">
                                     <span>On Leave</span>
                                 </div>
                                 <div class="attendance-value">
-                                    <span>5000</span>
+                                    <span>{{summary.leave}}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="attendance-item">
                             <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
-                                </div>
-                                <div class="attendance-title">
-                                    <span>Weekly Off</span>
-                                </div>
-                                <div class="attendance-value">
-                                    <span>5000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="attendance-item">
-                            <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
-                                </div>
-                                <div class="attendance-title">
-                                    <span>Weekly</span>
-                                </div>
-                                <div class="attendance-value">
-                                    <span>5000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="attendance-item">
-                            <div class="attendance-content">
-                                <div class="icon-container">
-                                    <img src="" alt="">
+                                <div class="icon-container p-4  d-flex justify-content-center align-items-center">
+                                    <i style="font-size: 25px" class="fa-solid fa-person-walking-arrow-right"></i>
                                 </div>
                                 <div class="attendance-title">
                                     <span>Checked Out</span>
                                 </div>
                                 <div class="attendance-value">
-                                    <span>5000</span>
+                                    <span>{{summary.checkedOut}}</span>
                                 </div>
                             </div>
                         </div>
@@ -124,76 +75,6 @@
             <div class="dashboard-item">
                 <div class="title">
                     <span>
-                        Attendance Source
-                    </span>
-                </div>
-                <div class="content">
-                    <div class="attendance-source-wrapper">
-                        <div class="source-items">
-                            <div class="source-title">
-                                <span>Item1</span>
-                            </div>
-                            <div class="source-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                        <div class="source-items">
-                            <div class="source-title">
-                                <span>Item1</span>
-                            </div>
-                            <div class="source-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                        <div class="source-items">
-                            <div class="source-title">
-                                <span>Item1</span>
-                            </div>
-                            <div class="source-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                        <div class="source-items">
-                            <div class="source-title">
-                                <span>Item1</span>
-                            </div>
-                            <div class="source-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="dashboard-item">
-                <div class="title">
-                    <span>
-                        Exceptions
-                    </span>
-                </div>
-                <div class="content">
-                    <div class="others-container">
-                        <div class="other-item">
-                            <div class="other-title">
-                                <span>Item Title</span>
-                            </div>
-                            <div class="other-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                        <div class="other-item">
-                            <div class="other-title">
-                                <span>Item Title</span>
-                            </div>
-                            <div class="other-value">
-                                <span>5000</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="dashboard-item">
-                <div class="title">
-                    <span>
                         Pending Requests
                     </span>
                 </div>
@@ -201,18 +82,18 @@
                     <div class="others-container">
                         <div class="other-item">
                             <div class="other-title">
-                                <span>Item Title</span>
+                                <span>Request Leave</span>
                             </div>
                             <div class="other-value">
-                                <span>5000</span>
+                                <span>{{ summary.totalRequestLeavePending }}</span>
                             </div>
                         </div>
                         <div class="other-item">
                             <div class="other-title">
-                                <span>Item Title</span>
+                                <span>Request Overtime</span>
                             </div>
                             <div class="other-value">
-                                <span>5000</span>
+                                <span>{{summary.totalOvertimePending}}</span>
                             </div>
                         </div>
                     </div>
@@ -234,7 +115,7 @@
                     <span class="card-value">
                         {{ totalEmployees }}
                     </span>
-                    
+
                 </div>
             </div>
 
@@ -249,7 +130,7 @@
                     <span class="card-value">
                         {{ totalCompanies }}
                     </span>
-                    
+
                 </div>
             </div>
         </div>
@@ -275,87 +156,87 @@ const props = defineProps({
     role: String,
     totalEmployees: Number,
     totalCompanies: Number,
+    summary: Object,
+    onTimeCheckIn: Object,
+    overtime: Object
 });
 
 onMounted(() => {
-    if (statisticsChart.value) {
-        new Chart(statisticsChart.value, {
-            type: "pie",
-            data: {
-                labels: ["Red", "Blue", "Yellow"],
-                datasets: [
-                    {
-                        label: "Votes",
-                        data: [12, 19, 7],
-                        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-            },
-        });
-    }
+    if(props.role === 'admin' || props.role === 'ceo') {
+        let labels = []
+        let overTimeLabels = []
+        let performances = []
+        let overtime_performances = []
+        for (let i = 0; i < props.summary.onTimeCheckin.length; i++) {
+            labels.push(props.summary.onTimeCheckin[i].month)
+            performances.push(props.summary.onTimeCheckin[i].performance)
+        }
 
-    if (onTimeChart.value) {
-        new Chart(onTimeChart.value, {
-            type: "bar",
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                datasets: [
-                    {
-                        label: "Performance",
-                        data: [80, 75, 85, 78, 82, 88],
-                        backgroundColor: "rgba(54, 162, 235, 0.7)",
-                        borderColor: "dodgerblue",
-                        borderWidth: 1,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: "Performance (%)",
+        for(let i = 0; i < props.summary.approvedOvertime.length; i++) {
+            overTimeLabels.push(props.summary.approvedOvertime[i].month)
+            overtime_performances.push(props.summary.approvedOvertime[i].performance)
+        }
+        if (onTimeChart.value) {
+            new Chart(onTimeChart.value, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Performance",
+                            data: performances,
+                            backgroundColor: "rgba(54, 162, 235, 0.7)",
+                            borderColor: "dodgerblue",
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "Performance (%)",
+                            },
                         },
                     },
                 },
-            },
-        });
-    }
+            });
+        }
 
-    if (overTimeChart.value) {
-        new Chart(overTimeChart.value, {
-            type: "bar",
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                datasets: [
-                    {
-                        label: "Performance",
-                        data: [80, 75, 85, 78, 82, 88],
-                        backgroundColor: "rgba(54, 162, 235, 0.7)",
-                        borderColor: "dodgerblue",
-                        borderWidth: 1,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: "Performance (%)",
+        if (overTimeChart.value) {
+            new Chart(overTimeChart.value, {
+                type: "bar",
+                data: {
+                    labels: overTimeLabels,
+                    datasets: [
+                        {
+                            label: "Performance",
+                            data: overtime_performances,
+                            backgroundColor: "rgba(54, 162, 235, 0.7)",
+                            borderColor: "dodgerblue",
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "Performance (%)",
+                            },
                         },
                     },
                 },
-            },
-        });
+            });
+        }
     }
+
 });
 </script>
 
@@ -437,13 +318,9 @@ onMounted(() => {
 }
 
 /* LAYOUT  */
+
 .dashboard-wrapper>.dashboard-item:nth-child(1) {
-    grid-column: span 2;
-
-}
-
-.dashboard-wrapper>.dashboard-item:nth-child(2) {
-    grid-column: span 10;
+    grid-column: span 12;
 }
 
 .dashboard-wrapper>.dashboard-item:nth-child(3) {
@@ -588,21 +465,21 @@ onMounted(() => {
 
 @media (max-width: 1650px) {
     .dashboard-wrapper>.dashboard-item:nth-child(1) {
-        grid-column: span 3;
+        grid-column: span 12;
     }
 
     .dashboard-wrapper>.dashboard-item:nth-child(2) {
-        grid-column: span 9;
+        grid-column: span 4;
     }
 }
 
 @media (max-width: 1400px) {
     .dashboard-wrapper>.dashboard-item:nth-child(1) {
-        grid-column: span 4;
+        grid-column: span 12;
     }
 
     .dashboard-wrapper>.dashboard-item:nth-child(2) {
-        grid-column: span 8;
+        grid-column: span 4;
     }
 }
 </style>

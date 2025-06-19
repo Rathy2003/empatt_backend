@@ -32,17 +32,14 @@ class ProfileController extends Controller
                 'required',
                 new CheckNameExist($request->id,$request->firstname,$request->lastname)
             ],
-            'email' => 'required|email|unique:users,email,'.Auth::id(),
-            'phone_number' => 'required',
-            'dob' => 'required|date',
+            'phone_number' => 'required|unique:users,phone_number,'.Auth::id(),
+            'bio' => 'nullable',
         ]);
 
         $user = User::find($request->id);
         $user->firstname = $request->firstname;
         $user->lastname = $request->lastname;
-        $user->email = $request->email;
-        $user->dob = $request->dob;
-        $user->bio = $request->bio;
+        $user->bio = $request->bio ?? null;
         $user->phone_number = $request->phone_number;
         $user->save();
         return redirect()->back()->with('success', 'Information updated successfully');

@@ -5,26 +5,14 @@
             <div class="title" style="color: #0092E1">
                 <h1>Account Information</h1>
             </div>
-            <div v-if="error_message!==''">
-                <label>
-                    <input type="checkbox" class="alertCheckbox" autocomplete="off" />
-                    <div class="alert error">
-                        <span class="alertClose">X</span>
-                        <span class="alertText">{{error_message}}
-                            <br class="clear"/></span>
-                    </div>
-                </label>
+            <!-- success message alert-->
+            <div class="alert alert-success alert-dismissible fade show mb-0 mt-4" role="alert" v-if="success.show">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{success.message}}</span>
+                </div>
             </div>
-            <div v-if="isSuccess">
-                <label>
-                    <input type="checkbox" class="alertCheckbox" autocomplete="off" />
-                    <div class="alert success">
-                        <span class="alertClose">X</span>
-                        <span class="alertText">Success
-                            <br class="clear"/></span>
-                    </div>
-                </label>
-            </div>
+            <!-- success message alert-->
             <div class="form-container">
                 <div class="txt-container">
                     <div class="txt-row">
@@ -38,23 +26,16 @@
                     <div class="txt-row">
                         <label for="">Email</label>
                         <div class="txt-verify">
-                            <input type="email" id="" v-model="form_data.email" placeholder="user@example.com" class="txtInput">
-                            <label for="" class="verify">Not verified</label>
+                            <input type="email" id="" v-model="form_data.email" readonly disabled placeholder="user@example.com" class="txtInput">
                         </div>
 
                     </div>
                     <div class="txt-row">
                         <label for="">Phone Number</label>
                         <div class="txt-verify">
-                            <input type="text" id="" v-model="form_data.phone_number" placeholder="Phone Number" class="txtInput">
-                            <label for="" class="verify">Not verified</label>
+                            <input type="text" id="" v-model="form_data.phone_number" @input="formatPhone" placeholder="Phone Number" class="txtInput">
                         </div>
                     </div>
-                    <div class="txt-row">
-                        <label for="">Date of birth</label>
-                        <input @change="onChangeDob" type="date" id="" :value="formatDate(form_data.dob)">
-                    </div>
-
                 </div>
                 <br>
                 <div class="txt-row">
@@ -65,7 +46,7 @@
             <br/>
             <br/>
             <div id="action-button">
-                <Link :href="route('dashboard')">Cancel</Link>
+                <Link :href="route('dashboard')" style="text-decoration: none">Cancel</Link>
                 <button @click="saveChange">Save</button>
             </div>
         </div>
@@ -89,7 +70,6 @@ export default {
             lastname: this.user.lastname,
             email: this.user.email,
             phone_number: this.user.phone_number,
-            dob: this.user.dob,
             bio: this.user.bio,
         })
     },
@@ -101,90 +81,60 @@ export default {
                 lastname: "",
                 email: "",
                 phone_number: "",
-                dob:null,
                 bio:null,
             }),
             editMode: false,
-            error_message:"",
-            isSuccess:false,
+            success:{
+                show: false,
+                message: "",
+            }
         };
     },
     methods: {
+        formatPhone() {
+            let digits = this.form_data.phone_number.replace(/\D/g, '');
+            if (digits.length > 0 && digits[0] !== '0') {
+                digits = '0' + digits;
+            }
+            digits = digits.substring(0, 10);
+
+            if (digits.length <= 3) {
+                this.form_data.phone_number = digits;
+            } else if (digits.length <= 6) {
+                this.form_data.phone_number = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+            } else {
+                this.form_data.phone_number = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+            }
+        },
         formatDate(value){
             return dayjs(value).format("YYYY-MM-DD");
         },
         saveChange(){
-            this.error_message = ""
+            $.LoadingOverlay("show")
             this.form_data.post(route('saveInformation'),{
                 onFinish: (res) => {
-                    this.isSuccess = true
+                    $.LoadingOverlay("hide")
+                    this.success.show = true
+                    this.success.message = "Information Update successfully"
+                    setTimeout(() => {
+                        this.success.show = false
+                        this.success.message = ""
+                    },3000)
                 },
                 onError: (error) => {
                     let key = Object.keys(error)[0]
-                    this.error_message = error[key]
+                    $.LoadingOverlay("hide")
                 }
             })
         },
-        onChangeDob(e){
-            this.form_data.dob = e.target.value
-        }
     }
 
 };
 </script>
 
 <style scoped>
-
-.alert {
-    position: relative;
-    top: 10;
-    left: 0;
-    width: auto;
-    height: auto;
-    padding: 10px;
-    margin: 10px;
-    line-height: 1.8;
-    border-radius: 5px;
-    cursor: hand;
-    cursor: pointer;
-    font-family: sans-serif;
-    font-weight: 400;
-}
-
-.alertCheckbox {
-    display: none;
-}
-
-:checked + .alert {
-    display: none;
-}
-
-.alertText {
-    display: table;
-    margin: 0 auto;
-    text-align: left;
-    font-size: 16px;
-}
-
-.alertClose {
-    float: right;
-    font-size: 17px;
-}
-
 .clear {
     clear: both;
-}
-
-.error {
-    background-color: #f13333;
-    border: 1px solid #EDD;
-    color: #ffffff;
-}
-
-.success {
-    background-color: rgb(0, 146, 225, 0.1);
-    border: 1px solid #DED;
-    color: #0092E1;
 }
 
 #action-button{

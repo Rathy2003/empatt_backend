@@ -16,23 +16,18 @@ class QRCodeController extends Controller
     private $key = 'c3091290f725c64d0dc3760babf4ed63d32a933e0e13f64925f8162e8c3224ec92e2b63083cac874e46ceba2dba31a780d34b3aaca05e6014faa842fd71127d62a033a61cbcc494857ce49724d281f2bbe76b44a9c07b06e07960159db96d2de83a297562366cabf6d9133477c20fb2fa93d455590999689a2be10cd0bbeb052439a1160a85c5ce1442e3ea81f0cedacf53f08165dc59a04e2894d5b4f14401392c9cd9dced75743eda2bde6ac3daaa652b991f001886746d76232067ed2d85599e9f7985a107d4b968712a441389ffc32cfdad1e4651706de5972d4a33e10e25c3aa55bbd939366d501f8ef2e3e28916f1127e1a4165478c5f6d00ac0d35c91';
     public function showQRCode(Request $request)
     {
-
         $qrcode = QRCode::with(['company:id,name'])->latest()->paginate(8);
         $company_id = Auth::user()->company_id;
         $search = $request->query('search');
         if($search){
-
-//            $users = User::with(['company:id,name'])
-//                ->where('id', '!=', 1)
-//                ->when($search, function ($query, $search) {
-//                    $query->where(function ($q) use ($search) {
-//                        $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
-//                            ->orWhere('email', 'like', "%{$search}%")
-//                            ->orWhere('phone_number', 'like', "%{$search}%");
-//                    });
-//                })
-//                ->paginate(8)
-//                ->appends(['search' => $search]);
+            $qrcode = QRCode::with(['company:id,name'])
+                ->when($search, function ($query, $search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->whereRaw("LOWER(name) LIKE ?", ["%{$search}%"]);
+                    });
+                })
+                ->paginate(8)
+                ->appends(['search' => $search]);
         }
 
         return Inertia::render('Dashboard/QRCode/QRCode',[
@@ -68,8 +63,10 @@ class QRCodeController extends Controller
         $company_id = Auth::user()->company_id;
         $request->validate([
             'name' => 'required|string|unique:qrcode,name',
-            'checkin' => 'required|string',
-            'checkout' => 'required|string',
+            'morning_checkin' => 'required|string',
+            'morning_checkout' => 'required|string',
+            'afternoon_checkin' => 'required|string',
+            'afternoon_checkout' => 'required|string',
             'latitude' => 'required',
             'longitude' => 'required',
             'embed_url' => 'required|string',
@@ -77,8 +74,10 @@ class QRCodeController extends Controller
 
         $payload = [
             'company_id' => $company_id,
-            'checkin_time' => $request->checkin,
-            'checkout_time' => $request->checkout,
+            'morning_checkin' => $request->morning_checkin,
+            'morning_checkout' => $request->morning_checkout,
+            'afternoon_checkin' => $request->afternoon_checkin,
+            'afternoon_checkout' => $request->afternoon_checkout,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
         ];
@@ -87,8 +86,10 @@ class QRCodeController extends Controller
         $data = [
             "token" => $token,
             "name" => $request->name,
-            "checkin_time" => $request->checkin,
-            "checkout_time" => $request->checkout,
+            'morning_checkin_time' => $request->morning_checkin,
+            'morning_checkout_time' => $request->morning_checkout,
+            'afternoon_checkin_time' => $request->afternoon_checkin,
+            'afternoon_checkout_time' => $request->afternoon_checkout,
             "embed_url" => $request->embed_url ,
             "latitude" => $request->get('latitude'),
             "longitude" => $request->get('longitude'),
@@ -105,8 +106,10 @@ class QRCodeController extends Controller
         $request->validate([
             'id' => 'required|exists:qrcode,id',
             'name' => 'required|string|unique:qrcode,name,'.$request->id,
-            'checkin' => 'required|string',
-            'checkout' => 'required|string',
+            'morning_checkin' => 'required|string',
+            'morning_checkout' => 'required|string',
+            'afternoon_checkin' => 'required|string',
+            'afternoon_checkout' => 'required|string',
             'embed_url' => 'required|string',
             'latitude' => 'required',
             'longitude' => 'required',
@@ -115,15 +118,19 @@ class QRCodeController extends Controller
         $qrcode = QRCode::findOrFail($request->id);
         if($qrcode){
             $qrcode->name = $request->name;
-            $qrcode->checkin_time = $request->checkin;
-            $qrcode->checkout_time = $request->checkout;
+            $qrcode->morning_checkin_time = $request->morning_checkin;
+            $qrcode->morning_checkout_time = $request->morning_checkout;
+            $qrcode->afternoon_checkin_time = $request->afternoon_checkin;
+            $qrcode->afternoon_checkout_time = $request->afternoon_checkout;
             $qrcode->latitude = $request->latitude;
             $qrcode->longitude = $request->longitude;
 
             $payload = [
                 'company_id' => $company_id,
-                'checkin_time' => $request->checkin,
-                'checkout_time' => $request->checkout,
+                'morning_checkin' => $request->morning_checkin,
+                'morning_checkout' => $request->morning_checkout,
+                'afternoon_checkin' => $request->afternoon_checkin,
+                'afternoon_checkout' => $request->afternoon_checkout,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
             ];

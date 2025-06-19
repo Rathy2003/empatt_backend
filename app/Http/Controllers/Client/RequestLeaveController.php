@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\RequestLeave;
+use App\Models\User;
+use App\Notifications\NewLeaveRequestNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +64,14 @@ class RequestLeaveController extends Controller
         $requestLeave->duration = $duration;
         $requestLeave->reason = $request->reason;
         $requestLeave->save();
+
+        // Send notification to all admins
+        $user = User::where('id',$request->employee_id)->first();
+        $admins = User::where('company_id',$user->company_id)->role(['admin','ceo'])->get();
+
+        foreach ($admins as $admin) {
+            $admin->notify(new NewLeaveRequestNotification($requestLeave));
+        }
 
         return response()->json(["message" => "Request has been submitted."],201);
     }

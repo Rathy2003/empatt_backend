@@ -22,6 +22,9 @@ return new class extends Migration
             $table->dateTime('scan_at');
             $table->tinyInteger('present')->default(0);
             $table->tinyInteger('absent')->default(0);
+            $table->string('period');
+            $table->tinyInteger('is_late')->default(0);
+            $table->string('status');
             $table->timestamps();
         });
     }

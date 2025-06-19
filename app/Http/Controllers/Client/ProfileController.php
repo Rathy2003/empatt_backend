@@ -25,7 +25,7 @@ class ProfileController extends Controller
                         ->where('company_id', $request->company_id)
                         ->where('id', '!=', $request->id)
                         ->first();
-            
+
                     if ($user) {
                         $fail('The firstname and lastname combination has already been taken.');
                     }
@@ -58,7 +58,7 @@ class ProfileController extends Controller
             'address' => $user->address,
             'photo' => $user->photo,
             'position_id' => $user->position_id,
-            'role' => $user->role,
+            'role' => $user->role(),
             'hire_date' => $user->hire_date,
             'company_id' => $user->company_id,
             'iat' => time(),

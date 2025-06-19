@@ -15,7 +15,6 @@ class AuthController extends Controller
     private $key = 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc0OTcxNDE5NCwiaWF0IjoxNzQ5NzE0MTk0fQ.lhbnaIUiJ_p_xD6YkcdK9tyqkY6tTOeC7k-b13NA0qc';
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
@@ -24,7 +23,7 @@ class AuthController extends Controller
             return response()->json(['message' => $validator->errors()], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->role(['admin','employee'])->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['email' => 'Invalid email or password'], 400);
         }

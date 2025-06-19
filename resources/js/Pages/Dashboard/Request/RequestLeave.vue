@@ -70,8 +70,7 @@
                         />
                     </div>
 
-<!--                    <span class="not-found-msg" v-if="this.filters.search && requestLeaves.data.length == 0">No record founded.</span>-->
-<!--                    <span class="not-found-msg" v-if="!this.filters.search && requestLeaves.data.length == 0">No record.</span>-->
+                    <span class="not-found-msg" v-if="requestLeaves.data.length == 0">No record.</span>
                 </div>
             </div>
         </div>
@@ -107,18 +106,19 @@
                 }, 300)
             },
             toggleStatus(item,status){
-              let form_data = useForm({
-                  id: item.id,
-                  status: status,
-              })
-              form_data.post(route('request-leave.update-status'),{
-                  onSuccess: ()=>{
-                      console.log("d")
-                  },
-                  onError: ()=>{
-                      console.log("d")
-                  }
-              })
+                $.LoadingOverlay("show")
+                let form_data = useForm({
+                    id: item.id,
+                    status: status,
+                })
+                form_data.post(route('request-leave.update-status'),{
+                    onSuccess: ()=>{
+                        $.LoadingOverlay("hide")
+                    },
+                    onError: ()=>{
+                        console.log("Error")
+                    }
+                  })
             },
             goToPage(url) {
                 router.visit(url, {

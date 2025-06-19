@@ -451,6 +451,7 @@ export default {
             document.getElementById('photo-preview').style.backgroundImage = `url('/no-image.png')`;
         },
         saveEmployee(){
+            $.LoadingOverlay("show")
             let url = this.form_data.id ? route('employee.update',this.form_data.id) : route('employee.store');
             this.form_data.post(url,{
                 onSuccess:()=>{
@@ -460,10 +461,14 @@ export default {
                     document.getElementById('photo-preview').style.backgroundImage = `url('/no-image.png')`;
                     this.success.show = true;
                     this.success.message = message;
+                    $.LoadingOverlay("hide")
                     setTimeout(()=>{
                         this.success.show = false;
                         this.success.message = '';
                     },3000);
+                },
+                onError:()=>{
+                    $.LoadingOverlay("hide")
                 }
             });
         },

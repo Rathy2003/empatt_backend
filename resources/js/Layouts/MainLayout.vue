@@ -1,5 +1,5 @@
 <template>
-    <Head title="Checkplify Admin Panel" />
+    <Head title="Checkplify Admin Panel"/>
 
     <div class="main-container">
         <!-- Sidebar -->
@@ -13,11 +13,11 @@
 
                     <li :class="{ active: $page.url.startsWith('/dashboard') }">
                         <Link :href="route('dashboard')"
-                            class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                              class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
                         <span class="icon">
                             <i class="fa-solid fa-house"></i>
                         </span>
-                        <span>Dashboard</span>
+                            <span>Dashboard</span>
                         </Link>
                     </li>
 
@@ -26,7 +26,7 @@
 
                         <li :class="{ active: $page.url.startsWith('/company') }">
                             <Link :href="route('company')"
-                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
                                 <span class="icon">
                                     <i class="fa-solid fa-building"></i>
                                 </span>
@@ -36,11 +36,11 @@
 
                         <li :class="{ active: $page.url.startsWith('/user') }">
                             <Link :href="route('user')"
-                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
                             <span class="icon">
                                 <i class="fa-solid fa-users"></i>
                             </span>
-                            <span>User</span>
+                                <span>User</span>
                             </Link>
                         </li>
                     </div>
@@ -72,9 +72,19 @@
                             </Link>
                         </li>
 
+                        <li :class="{ active: $page.url.startsWith('/overtime') }">
+                            <Link :href="route('overtime.index')"
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                <span class="icon">
+                                   <i class="fa-solid fa-clock"></i>
+                                </span>
+                                <span>Overtime</span>
+                            </Link>
+                        </li>
+
                         <li :class="{ active: $page.url.startsWith('/employee') }">
                             <Link :href="route('employee.index')"
-                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
                                 <span class="icon">
                                     <i class="fa-solid fa-user-plus"></i>
                                 </span>
@@ -84,7 +94,7 @@
 
                         <li :class="{ active: $page.url.startsWith('/qrcode') }">
                             <Link :href="route('qrcode')"
-                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
+                                  class="text-white text-decoration-none d-flex align-items-center gap-2 w-100 ">
                                 <span class="icon">
                                     <i class="fa-solid fa-qrcode"></i>
                                 </span>
@@ -95,40 +105,39 @@
                     <!-- End Admin And CEO Role -->
 
                     <!-- Admin Role -->
-                     <div v-if="role === 'admin'">
+                    <div v-if="role === 'admin'">
 
-                     </div>
+                    </div>
                     <!-- End Admin Role -->
 
                     <!-- Settings -->
                     <li>
                         <button @click="toggleSetdrop"
-                            class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
+                                class="text-white text-decoration-none d-flex align-items-center gap-2 w-100">
                             <span class="icon">
                                 <i class="fa-solid fa-gear"></i>
                             </span>
                             <span style="font-size: 17px;font-weight: 500;">Settings</span>
                             <i class="fa-solid fa-angle-down"
-                                :class="{ 'rotate': SetdropdownVisible, 'rotate-back': !SetdropdownVisible }"></i>
+                               :class="{ 'rotate': SetdropdownVisible, 'rotate-back': !SetdropdownVisible }"></i>
                         </button>
 
                     </li>
                     <div class="settings-dropdown" v-show="SetdropdownVisible">
                         <ul>
-                            <li  v-if="role === 'admin' || role === 'ceo'"  :class="{ active: $page.url.startsWith('/account-information') }">
+                            <li v-if="role === 'admin' || role === 'ceo'"
+                                :class="{ active: $page.url.startsWith('/account-information') }">
                                 <Link :href="route('accountInformation')">
-                                Account Information
+                                    Account Information
                                 </Link>
                             </li>
                             <li>
                                 <Link :href="route('processLogout')">
-                                Log out
+                                    Log out
                                 </Link>
                             </li>
                         </ul>
                     </div>
-                    <!-- Settings -->
-
                 </ul>
             </div>
         </div>
@@ -141,45 +150,76 @@
                     </label>
                     <input type="checkbox" id="chk-menu">
                 </div>
-                <div class="profile-container" @click="toggleDropdown">
-                    <i class="fa-solid fa-user"></i>
-                    <div class="profile-dropdown">
-                        <button class="btn-profile">{{ user?  user.firstname:'' }}
-                            <i class="fa-solid fa-angle-down"
-                                :class="{ 'rotate': ProfiledropdownVisible, 'rotate-back': !ProfiledropdownVisible }"
-                                style="background-color:white;font-size:20px;"></i>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification -->
+                    <div v-if="role === 'admin' || role === 'ceo'" class="position-relative" style="margin-top: 5px">
+                        <button type="button" class="btn icon-btn" style="padding: 5px" @click="toggleNotifications">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                 class="bi bi-bell" viewBox="0 0 16 16">
+                                <path
+                                    d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                            </svg>
                         </button>
-                        <transition name="fade">
-                            <div class="dropdown" v-show="ProfiledropdownVisible">
-                                <ul>
-                                    <li v-if="role === 'admin' || role === 'ceo'">
-                                        <!-- <router-link to="/edit-profile">Edit Profile</router-link> -->
-                                        <Link :href="route('accountInformation')">
-                                        Edit Profile
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link :href="route('processLogout')">
-                                        Log out
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </transition>
+
+                        <!-- Badge -->
+                        <span v-if="unreadCount > 0"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+    {{ unreadCount }}
+  </span>
+
+                        <!-- Notification Dropdown -->
+                        <div v-if="showDropdown" class="position-absolute bg-white shadow p-2 mt-2"
+                             style="right: 0; width: 300px; z-index: 999;">
+                            <div v-if="notifications.length === 0">No new notifications</div>
+                            <ul class="list-unstyled mb-0">
+                                <li v-for="(notification, index) in notifications" :key="index"
+                                    class="border-bottom py-1">
+                                    <strong>{{ notification.data.title }}</strong>
+                                    <br>
+                                    <small>{{ new Date(notification.created_at).toLocaleString() }}</small>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--  End Notification  -->
+                    <div class="profile-container" @click="toggleDropdown">
+                        <i class="fa-solid fa-user"></i>
+                        <div class="profile-dropdown">
+                            <button class="btn-profile">{{ user ? user.firstname : '' }}
+                                <i class="fa-solid fa-angle-down"
+                                   :class="{ 'rotate': ProfiledropdownVisible, 'rotate-back': !ProfiledropdownVisible }"
+                                   style="background-color:white;font-size:20px;"></i>
+                            </button>
+                            <transition name="fade">
+                                <div class="dropdown" v-show="ProfiledropdownVisible">
+                                    <ul>
+                                        <li v-if="role === 'admin' || role === 'ceo'">
+                                            <!-- <router-link to="/edit-profile">Edit Profile</router-link> -->
+                                            <Link :href="route('accountInformation')">
+                                                Edit Profile
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link :href="route('processLogout')">
+                                                Log out
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </transition>
+                        </div>
                     </div>
                 </div>
             </div>
             <div id="right-container">
                 <div class="link-container">
-                    <slot />
+                    <slot/>
                 </div>
             </div>
         </div>
-
-
     </div>
 </template>
-
 
 <style>
 .main-container:has(#menu-bar-wrapper input[type=checkbox]:checked) {
@@ -248,7 +288,6 @@ li {
 }
 
 
-
 .main-container .left-container {
     background-color: #0092E1;
     color: white;
@@ -256,7 +295,7 @@ li {
     padding: 20px;
 }
 
-.logo-container>label {
+.logo-container > label {
     font-family: 'Poppins', sans-serif;
 }
 
@@ -272,7 +311,7 @@ li {
     color: white;
 }
 
-.Left-menu-container>ul {
+.Left-menu-container > ul {
     width: 100%;
 
     & li {
@@ -321,7 +360,7 @@ li {
 }
 
 
-li button{
+li button {
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -332,22 +371,22 @@ li button{
     gap: 10px;
     padding: 10px;
 
-    &:hover{
+    &:hover {
         background-color: white;
         color: #0092E1;
         border-radius: 4px;
 
-        & span{
+        & span {
             color: #0092E1;
         }
 
-        & i{
+        & i {
             color: #0092E1;
         }
     }
 }
 
-.settings-dropdown>ul {
+.settings-dropdown > ul {
     list-style: none;
     display: flex;
     align-items: flex-start;
@@ -357,7 +396,7 @@ li button{
     padding-left: 25px !important;
 }
 
-.settings-dropdown>ul li {
+.settings-dropdown > ul li {
     width: 100%;
     padding: 0 !important;
 
@@ -371,7 +410,6 @@ li button{
         padding: 10px !important;
     }
 }
-
 
 
 #right-container {
@@ -452,9 +490,6 @@ li button{
     font-family: "Poppins", sans-serif;
 }
 
-
-
-
 .profile-dropdown ul {
     list-style: none;
     display: flex;
@@ -467,6 +502,7 @@ li button{
     background-color: #F4F6FA;
     border-radius: 10px;
     box-shadow: 0 4px 4px rgba(0, 0, 0, .25);
+    right: -3px;
 }
 
 .profile-dropdown ul li {
@@ -588,8 +624,6 @@ li button{
 }
 
 
-
-
 @media (max-width: 750px) {
 
     .txt-search input {
@@ -613,17 +647,27 @@ li button{
 </style>
 
 <script>
-import { Link, usePage, Head } from "@inertiajs/vue3";
+import {Link, usePage, Head} from "@inertiajs/vue3";
+import axios from "axios";
 
 export default {
-    components: { Link, Head },
+    components: {Link, Head},
     mounted() {
-        const { user,role } = usePage().props;
+        const {user, role} = usePage().props;
         this.role = role;
         this.user = user;
-        if(this.$page.url.startsWith('/account-information')){
+        if (this.$page.url.startsWith('/account-information')) {
             this.SetdropdownVisible = true;
         }
+        if (role === 'admin' || role === 'ceo') {
+            this.fetchNotificationCount()
+            this.intervalId = setInterval(() => {
+                this.fetchNotificationCount();
+            }, 15000);
+        }
+    },
+    beforeDestroy() {
+        clearInterval(this.intervalId);
     },
     data() {
         return {
@@ -632,15 +676,42 @@ export default {
             offScreenMenuActive: false,
             user: null,
             role: null,
+            unreadCount: 0,
+            notifications: [],
+            showDropdown: false,
+            intervalId: null,
         };
     },
     methods: {
+        fetchNotificationCount() {
+            axios.get(route('getNotificationCount'))
+                .then(response => {
+                    let unread = response.data.count;
+                    this.unreadCount = unread;
+                });
+        },
         toggleDropdown() {
             this.ProfiledropdownVisible = !this.ProfiledropdownVisible;
         },
         toggleSetdrop() {
             this.SetdropdownVisible = !this.SetdropdownVisible;
         },
+        async fetchNotifications() {
+            try {
+                const response = await axios.get(route('getAllNotifications'))
+                this.notifications = response.data
+                this.unreadCount = 0
+            } catch (e) {
+                console.error('Failed to fetch notifications', e)
+            }
+        },
+        toggleNotifications() {
+            this.showDropdown = !this.showDropdown
+            if (this.showDropdown) {
+                this.fetchNotifications()
+            }
+        }
+
     }
 };
 </script>

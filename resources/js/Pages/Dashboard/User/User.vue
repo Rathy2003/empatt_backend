@@ -174,13 +174,13 @@
             </div>
             <!-- success message alert-->
             <div class="alert alert-success alert-dismissible fade show mb-0" role="alert" v-if="success.show">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-circle-check"></i>
-                            <span>{{success.message}}</span>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <!-- success message alert-->
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{success.message}}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <!-- success message alert-->
             <div class="table-container" v-if="users.data.length > 0">
                 <table>
                     <thead>
@@ -388,7 +388,7 @@ export default{
             this.form_data.company_id = item.company_id;
             this.form_data.old_photo = item.photo;
             this.form_data.status = item.status;
-            
+
             $("#staticBackdrop").modal('show');
         },
         onEdit(item){
@@ -402,7 +402,7 @@ export default{
             this.form_data.company_id = item.company_id;
             this.form_data.old_photo = item.photo;
             this.form_data.status = item.status;
-            
+
             $("#staticBackdrop").modal('show');
         },
         onDelete(item){

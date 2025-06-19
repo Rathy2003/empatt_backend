@@ -21,13 +21,13 @@
 
         <!-- Add and Edit QRCode Modal-->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">{{form_data.id ? 'Edit QRCode' : 'New QRCode'}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" style="padding-top: 55px;padding-bottom: 55px;">
+                    <div class="modal-body" style="padding-top: 35px;padding-bottom: 35px;">
                         <form class="d-flex gap-5">
                             <div style="width: 50%;">
                                 <div class="mb-3">
@@ -37,31 +37,57 @@
                                         {{errors.name}}
                                     </div>
                                 </div>
-
+                                <!-- Morning -->
+                                <div class="mt-3">
+                                    <span class="fw-bold">MORNING WORKING TIME</span>
+                                </div>
+                                <hr>
                                 <div class="mb-3">
                                     <label for="checkin_time" class="form-label">Checkin Time</label>
-                                    <TimerPicker ref="checkin_ref" @change-time="onChangeCheckInTime"/>
+                                    <TimerPicker ref="morning_checkin_ref" @change-time="onChangeMorningCheckInTime"/>
                                     <div class="invalid-feedback">
                                         {{errors.checkin_time}}
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="checkout_time" class="form-label">Checkout Time</label>
-                                    <TimerPicker ref="checkout_ref" @change-time="onChangeCheckOutTime"/>
+                                    <TimerPicker ref="morning_checkout_ref" @change-time="onChangeMorningCheckOutTime"/>
                                     <div class="invalid-feedback">
                                         {{errors.checkout_time}}
                                     </div>
                                 </div>
+
+                                <!-- Afternoon -->
+                                <div class="mt-5">
+                                    <span class="fw-bold">AFTERNOON WORKING TIME</span>
+                                </div>
+                                <hr>
+                                <div class="mb-3">
+                                    <label for="checkin_time" class="form-label">Checkin Time</label>
+                                    <TimerPicker ref="afternoon_checkin_ref" @change-time="onChangeAfternoonCheckInTime"/>
+                                    <div class="invalid-feedback">
+                                        {{errors.checkin_time}}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="checkout_time" class="form-label">Checkout Time</label>
+                                    <TimerPicker ref="afternoon_checkout_ref" @change-time="onChangeAfternoonCheckOutTime"/>
+                                    <div class="invalid-feedback">
+                                        {{errors.checkout_time}}
+                                    </div>
+                                </div>
+
                                 <div v-if="googleMapsEmbedUrl" class="mb-3 text-center mt-5" >
                                     <button type="button" @click="openMap" class="btn btn-outline-primary">Change Location</button>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-center align-items-center flex-column gap-4" style="width: 50%;position: relative">
                                 <button v-if="!googleMapsEmbedUrl" type="button" @click="openMap" class="btn btn-outline-primary">{{form_data.latitude && form_data.longitude ? 'Change Location' : 'Choose Location'}}</button>
-                                <div v-if="googleMapsEmbedUrl">
+                                <span class="d-block mt-2 text-danger" v-if="errors.map !== ''">{{errors.map}}</span>
+                                <div v-if="googleMapsEmbedUrl" style="height: 90%">
                                     <iframe v-if="googleMapsEmbedUrl"
                                             :src="googleMapsEmbedUrl"
-                                            style="border:0;width: 500px;height: 310px"
+                                            style="border:0;width: 500px;height: 100%"
                                             allowfullscreen=""
                                             loading="lazy"
                                     >
@@ -110,7 +136,7 @@
                             type="text"
                             v-model="search"
                             @input="searchItems"
-                            placeholder="Search name, email or phone number"
+                            placeholder="Search by name"
                             :disabled="!this.filters.search && qrcode.data.length == 0"
                             autocomplete="off"
                         >
@@ -210,8 +236,10 @@ export default{
         $("#staticBackdrop").on("hide.bs.modal", function(){
             vm.clearForms()
             vm.clearErrors()
-            vm.$refs.checkin_ref.clearTime()
-            vm.$refs.checkout_ref.clearTime()
+            vm.$refs.morning_checkin_ref.clearTime()
+            vm.$refs.morning_checkout_ref.clearTime()
+            vm.$refs.afternoon_checkin_ref.clearTime()
+            vm.$refs.afternoon_checkout_ref.clearTime()
         })
 
         $("#deleteModal").on("hide.bs.modal", function(){
@@ -227,17 +255,33 @@ export default{
             form_data:useForm({
                 id:null,
                 name:"",
-                checkin:"",
-                checkout:"",
-                checkin_time:{
-                    hour:"",
-                    minute:"",
-                    am_pm:"",
+                morning_checkin:"",
+                morning_checkout:"",
+                afternoon_checkin:"",
+                afternoon_checkout:"",
+                morning:{
+                    checkin_time:{
+                        hour:"",
+                        minute:"",
+                        am_pm:"",
+                    },
+                    checkout_time:{
+                        hour:"",
+                        minute:"",
+                        am_pm:"",
+                    },
                 },
-                checkout_time:{
-                    hour:"",
-                    minute:"",
-                    am_pm:"",
+                afternoon:{
+                    checkin_time:{
+                        hour:"",
+                        minute:"",
+                        am_pm:"",
+                    },
+                    checkout_time:{
+                        hour:"",
+                        minute:"",
+                        am_pm:"",
+                    },
                 },
                 latitude: null,
                 longitude: null,
@@ -245,6 +289,7 @@ export default{
             }),
             errors:{
                 name:"",
+                map:""
             },
             search: this.filters.search || '',
             debounceTimer: null,
@@ -263,7 +308,6 @@ export default{
         }
     },
     watch: {
-        // Watch for changes in isPopupActive to manage body overflow
         isPopupActive(newValue) {
             if (newValue) {
                 document.body.style.overflow = 'hidden';
@@ -285,21 +329,37 @@ export default{
                 }
             });
         },
-        onChangeCheckInTime(time){
+        onChangeMorningCheckInTime(time){
             let hour = time.hour;
             let minute = time.minute;
             let am_pm = time.am_pm;
-            this.form_data.checkin_time.hour = hour;
-            this.form_data.checkin_time.minute = minute;
-            this.form_data.checkin_time.am_pm = am_pm;
+            this.form_data.morning.checkin_time.hour = hour;
+            this.form_data.morning.checkin_time.minute = minute;
+            this.form_data.morning.checkin_time.am_pm = am_pm;
         },
-        onChangeCheckOutTime(time){
+        onChangeMorningCheckOutTime(time){
             let hour = time.hour;
             let minute = time.minute;
             let am_pm = time.am_pm;
-            this.form_data.checkout_time.hour = hour;
-            this.form_data.checkout_time.minute = minute;
-            this.form_data.checkout_time.am_pm = am_pm;
+            this.form_data.morning.checkout_time.hour = hour;
+            this.form_data.morning.checkout_time.minute = minute;
+            this.form_data.morning.checkout_time.am_pm = am_pm;
+        },
+        onChangeAfternoonCheckInTime(time){
+            let hour = time.hour;
+            let minute = time.minute;
+            let am_pm = time.am_pm;
+            this.form_data.afternoon.checkin_time.hour = hour;
+            this.form_data.afternoon.checkin_time.minute = minute;
+            this.form_data.afternoon.checkin_time.am_pm = am_pm;
+        },
+        onChangeAfternoonCheckOutTime(time){
+            let hour = time.hour;
+            let minute = time.minute;
+            let am_pm = time.am_pm;
+            this.form_data.afternoon.checkout_time.hour = hour;
+            this.form_data.afternoon.checkout_time.minute = minute;
+            this.form_data.afternoon.checkout_time.am_pm = am_pm;
         },
         initMap() {
             const defaultLocation = { lat: -6.2, lng: 106.8 };
@@ -313,7 +373,6 @@ export default{
         },
         handleSelectedLocation(lat, lng) {
             const clickedLocation = { lat, lng };
-
             this.form_data.latitude = lat;
             this.form_data.longitude = lng;
 
@@ -337,8 +396,6 @@ export default{
                     this.googleMapsEmbedUrl = null;
                 }
             });
-
-            // Optional: Center map if needed
             this.map.setCenter(clickedLocation);
             this.map.setZoom(15);
         },
@@ -358,15 +415,17 @@ export default{
         },
         getCurrentLocation() {
             if (navigator.geolocation) {
+                $.LoadingOverlay("show")
                 const watchId = navigator.geolocation.watchPosition(
                     (position) => {
                         const accuracy = position.coords.accuracy;
                         console.log("Accuracy:", accuracy + " meters");
-                        if (accuracy <= 150) {
+                        if (accuracy <= 200) {
                             const userLocation = {
                                 lat: position.coords.latitude,
                                 lng: position.coords.longitude,
                             };
+                            $.LoadingOverlay("hide")
 
                             this.latitude = parseFloat(position.coords.latitude.toFixed(6));
                             this.longitude = parseFloat(position.coords.longitude.toFixed(6));
@@ -404,17 +463,26 @@ export default{
         },
         searchItems() {
             clearTimeout(this.debounceTimer)
-
             this.debounceTimer = setTimeout(() => {
-                router.get(route('user'), { search: this.search }, {
+                router.get(route('qrcode'), { search: this.search }, {
                     preserveState: true,
                     replace: true
                 })
             }, 300)
         },
         save(){
-            this.form_data.checkout = this.form_data.checkout_time.hour + ":" + this.form_data.checkout_time.minute + " " + this.form_data.checkout_time.am_pm;
-            this.form_data.checkin = this.form_data.checkin_time.hour + ":" +this.form_data.checkin_time.minute+" "+this.form_data.checkin_time.am_pm;
+            $.LoadingOverlay("show")
+            let morning = this.form_data.morning.checkin_time
+            if(morning.hour && morning.minute && morning.am_pm){
+                this.form_data.morning_checkout = this.form_data.morning.checkout_time.hour + ":" + this.form_data.morning.checkout_time.minute + " " + this.form_data.morning.checkout_time.am_pm;
+                this.form_data.morning_checkin = this.form_data.morning.checkin_time.hour + ":" +this.form_data.morning.checkin_time.minute+" "+this.form_data.morning.checkin_time.am_pm;
+            }
+            let afternoon = this.form_data.afternoon.checkin_time
+            if(afternoon.hour && afternoon.minute  && afternoon.am_pm){
+                this.form_data.afternoon_checkout = this.form_data.afternoon.checkout_time.hour + ":" + this.form_data.afternoon.checkout_time.minute + " " + this.form_data.afternoon.checkout_time.am_pm;
+                this.form_data.afternoon_checkin = this.form_data.afternoon.checkin_time.hour + ":" +this.form_data.afternoon.checkin_time.minute+" "+this.form_data.afternoon.checkin_time.am_pm;
+            }
+
             this.form_data.embed_url = this.googleMapsEmbedUrl;
             let vm = this;
             this.clearErrors()
@@ -422,7 +490,6 @@ export default{
                 onSuccess:async function(){
                     $("#staticBackdrop").modal('hide');
                     vm.clearForms();
-                    console.log(vm.qrcode.data);
                     let token = vm.qrcode.data[0].token
                     let id = vm.qrcode.data[0].id;
                     await QRCode.toDataURL(token, {
@@ -441,6 +508,7 @@ export default{
                                 $("#staticBackdrop").modal('hide');
                                 vm.success.show = true;
                                 vm.success.message = "QRCode create successfully.";
+                                $.LoadingOverlay("hide")
                                 setTimeout(()=>{
                                     vm.success.show = false;
                                     vm.success.message = "";
@@ -452,15 +520,41 @@ export default{
                 onError:(err) =>{
                     const keys = Object.keys(err);
                     keys.forEach(key => {
+                        if(key === 'morning_checkin'){
+                            vm.$refs.morning_checkin_ref.setError(err[key]);
+                        }
+                        if(key === 'morning_checkout'){
+                            vm.$refs.morning_checkout_ref.setError(err[key]);
+                        }
+                        if(key === 'afternoon_checkin'){
+                            vm.$refs.afternoon_checkin_ref.setError(err[key]);
+                        }
+                        if(key === 'afternoon_checkout'){
+                            vm.$refs.afternoon_checkout_ref.setError(err[key]);
+                        }
+
+                        if(key === 'latitude' || key === 'longitude'){
+                            this.errors.map = "Please Choose Location";
+                        }
                         this.errors[key] = err[key];
                     })
+                    $.LoadingOverlay("hide")
                     console.log(this.errors);
                 }
             })
         },
         saveEdit(){
-            this.form_data.checkout = this.form_data.checkout_time.hour + ":" + this.form_data.checkout_time.minute + " " + this.form_data.checkout_time.am_pm;
-            this.form_data.checkin = this.form_data.checkin_time.hour + ":" +this.form_data.checkin_time.minute+" "+this.form_data.checkin_time.am_pm;
+            $.LoadingOverlay("show")
+            let morning = this.form_data.morning.checkin_time
+            if(morning.hour && morning.minute && morning.am_pm){
+                this.form_data.morning_checkout = this.form_data.morning.checkout_time.hour + ":" + this.form_data.morning.checkout_time.minute + " " + this.form_data.morning.checkout_time.am_pm;
+                this.form_data.morning_checkin = this.form_data.morning.checkin_time.hour + ":" +this.form_data.morning.checkin_time.minute+" "+this.form_data.morning.checkin_time.am_pm;
+            }
+            let afternoon = this.form_data.afternoon.checkin_time
+            if(afternoon.hour && afternoon.minute  && afternoon.am_pm){
+                this.form_data.afternoon_checkout = this.form_data.afternoon.checkout_time.hour + ":" + this.form_data.afternoon.checkout_time.minute + " " + this.form_data.afternoon.checkout_time.am_pm;
+                this.form_data.afternoon_checkin = this.form_data.afternoon.checkin_time.hour + ":" +this.form_data.afternoon.checkin_time.minute+" "+this.form_data.afternoon.checkin_time.am_pm;
+            }
             this.form_data.embed_url = this.googleMapsEmbedUrl;
             let vm = this;
             this.clearErrors()
@@ -491,6 +585,7 @@ export default{
                                 vm.clearForms()
                                 vm.success.show = true;
                                 vm.success.message = "QRCode updated successfully.";
+                                $.LoadingOverlay("hide")
                                 setTimeout(()=>{
                                     vm.success.show = false;
                                     vm.success.message = "";
@@ -512,21 +607,40 @@ export default{
             this.form_data.id = item.id;
             this.form_data.name = item.name;
 
-            // split checkin time
-            var {hour,minute,am_pm} = this.splitTime(item.checkin_time);
-            this.form_data.checkin_time.hour = hour;
-            this.form_data.checkin_time.minute = minute;
-            this.form_data.checkin_time.am_pm = am_pm;
+            // split morning checkin time
+            var {hour,minute,am_pm} = this.splitTime(item.morning_checkin_time);
+            this.form_data.morning.checkin_time.hour = hour;
+            this.form_data.morning.checkin_time.minute = minute;
+            this.form_data.morning.checkin_time.am_pm = am_pm;
             // set time to timepicker
-            this.$refs.checkin_ref.setTime(hour,minute,am_pm);
+            this.$refs.morning_checkin_ref.setTime(hour,minute,am_pm);
 
-            // split checkout time
-            var {hour,minute,am_pm}=this.splitTime(item.checkout_time);
-            this.form_data.checkout_time.hour = hour;
-            this.form_data.checkout_time.minute = minute;
-            this.form_data.checkout_time.am_pm = am_pm;
+            // split morning_checkout time
+            var {hour,minute,am_pm}=this.splitTime(item.morning_checkout_time);
+            this.form_data.morning.checkout_time.hour = hour;
+            this.form_data.morning.checkout_time.minute = minute;
+            this.form_data.morning.checkout_time.am_pm = am_pm;
+
             // set time to timepicker
-            this.$refs.checkout_ref.setTime(hour,minute,am_pm);
+            this.$refs.morning_checkout_ref.setTime(hour,minute,am_pm);
+
+            // split afternoon checkin time
+            var {hour,minute,am_pm} = this.splitTime(item.afternoon_checkin_time);
+            this.form_data.afternoon.checkin_time.hour = hour;
+            this.form_data.afternoon.checkin_time.minute = minute;
+            this.form_data.afternoon.checkin_time.am_pm = am_pm;
+            // set time to timepicker
+            this.$refs.afternoon_checkin_ref.setTime(hour,minute,am_pm);
+
+            // split afternoon_checkout time
+            var {hour,minute,am_pm}=this.splitTime(item.afternoon_checkout_time);
+            this.form_data.afternoon.checkout_time.hour = hour;
+            this.form_data.afternoon.checkout_time.minute = minute;
+            this.form_data.afternoon.checkout_time.am_pm = am_pm;
+
+            // set time to timepicker
+            this.$refs.afternoon_checkout_ref.setTime(hour,minute,am_pm);
+
             this.form_data.embed_url = item.embed_url;
             this.googleMapsEmbedUrl = item.embed_url;
             this.form_data.latitude = item.latitude;
@@ -570,6 +684,7 @@ export default{
         },
         clearErrors(){
             this.errors.name = ""
+            this.errors.map = ""
         },
         clearForms(){
             this.form_data.id = null;

@@ -20,7 +20,9 @@ return new class extends Migration
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->dateTime('request_time');
-            $table->dateTime('approved_time');
+            $table->string('reason');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });

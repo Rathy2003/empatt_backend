@@ -14,6 +14,13 @@ return new class extends Migration
         Schema::create('qrcode', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('morning_checkin_time');
+            $table->string('morning_checkout_time');
+            $table->string('afternoon_checkin_time');
+            $table->string('afternoon_checkout_time');
+            $table->string('latitude');
+            $table->string('longitude');
+            $table->string('embed_url');
             $table->unsignedBigInteger('company_id');
             $table->foreign('company_id')
                 ->references('id')
@@ -22,10 +29,6 @@ return new class extends Migration
                 ->onUpdate('cascade');
 
             $table->timestamps();
-
-
-
-
         });
     }
 

@@ -40,6 +40,15 @@ class UserController extends Controller
         ]);
     }
 
+    public function getNotificationCount()
+    {
+        $count = auth()->user()->unreadNotifications->count();
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
     public function save(Request $request){
         $request->validate([
             'firstname'=>'required|string',

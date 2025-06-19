@@ -84,4 +84,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(RequestLeave::class, 'employee_id');
     }
+
+    public function overtimes()
+    {
+        return $this->hasMany(Overtime::class, 'employee_id');
+    }
 }
