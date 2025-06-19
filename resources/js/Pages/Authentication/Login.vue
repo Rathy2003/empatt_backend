@@ -23,9 +23,10 @@
                         <input @keyup="clearErrors" type="password" :class="{'is-invalid':errors.password !== ''}" placeholder="Enter your password" v-model="form_data.password">
                         <span class="is-invalid-msg" v-if="errors.password !== ''">{{errors.password}}</span>
                     </div>
-                    <div class="forget-password" style="">
-                        <Link :href="route('resetPassword')">Forget password?</Link>
-                    </div>
+<!--                    <div class="forget-password" style="">-->
+<!--                        <Link :href="route('resetPassword')">Forget password?</Link>-->
+<!--                    </div>-->
+                    <br>
                     <div class="btn-log">
                         <button>Login</button>
                     </div>
